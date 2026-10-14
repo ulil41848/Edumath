@@ -110,6 +110,9 @@ function showPage(pageId) {
     }
 
     document.getElementById(pageId).classList.remove("hidden");
+    if (pageId === 'detail-kursus') {
+    loadKelas3Progress(kelas3SemesterAktif);
+}
 }
 
 
@@ -737,24 +740,204 @@ const KELAS3_MATERI = {
 let kelas3SemesterAktif = 1;
 let kelas3MateriAktif = 0;
 
+let kelas3ProgressData = {
+    1: [],
+    2: []
+};
+
+function renderKelas3ProgressUI() {
+    const semester = kelas3SemesterAktif;
+    const completed = new Set(
+        (kelas3ProgressData[semester] || []).map(Number)
+    );
+
+    const total = KELAS3_MATERI[semester].length;
+    const percent = Math.round(completed.size / total * 100);
+
+    const circle = document.getElementById('kelas3-progress-circle');
+    const percentText = document.getElementById('kelas3-progress-percent');
+    const progressText = document.getElementById('kelas3-course-progress');
+
+    if (circle) {
+        circle.style.setProperty('--progress', percent + '%');
+    }
+
+    if (percentText) {
+        percentText.textContent = percent + '%';
+    }
+
+    if (progressText) {
+        progressText.textContent =
+            `${completed.size} dari ${total} materi selesai`;
+    }
+}
+
+function renderKelas3ModuleList() {
+    const list = document.getElementById('kelas3-module-list');
+    if (!list) return;
+
+    const semester = kelas3SemesterAktif;
+    const completed = new Set(
+        (kelas3ProgressData[semester] || []).map(Number)
+    );
+
+    list.innerHTML = KELAS3_MATERI[semester].map((materi, index) => {
+        const isDone = completed.has(index);
+
+        return `
+            <div class="dk-module-card ${isDone ? 'completed' : ''}"
+                 onclick="openKelas3Materi(${index})"
+                 style="cursor:pointer">
+
+                <div class="dk-icon ${isDone ? 'done' : (index === 0 ? 'play' : 'lock')}">
+                    ${isDone ? '✓' : (index === 0 ? '▶' : '📘')}
+                </div>
+
+                <div class="dk-module-info" style="flex:1; min-width:0">
+                    <span class="bab">Materi ${index + 1}</span>
+                    <h4>${materi.title}</h4>
+                    <span class="time">${materi.time}</span>
+                </div>
+
+                <button type="button"
+                    onclick="toggleKelas3Progress(event, ${index})"
+                    style="margin-left:8px; padding:8px;
+                    border:0; border-radius:8px;
+                    font-size:9px; font-weight:bold;
+                    background:${isDone ? '#d1fae5' : '#e0f2fe'};
+                    color:${isDone ? '#047857' : '#075985'};
+                    cursor:pointer; flex-shrink:0">
+                    ${isDone ? 'Selesai ✓' : 'Tandai selesai'}
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+async function loadKelas3Progress(semester = kelas3SemesterAktif) {
+    try {
+        const response = await fetch(
+            `/learning-progress?semester=${semester}`,
+            {
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 419) {
+                kelas3ProgressData[semester] = [];
+                renderKelas3ProgressUI();
+                renderKelas3ModuleList();
+                return;
+            }
+
+            throw new Error(
+                data.message || 'Gagal memuat progres belajar.'
+            );
+        }
+
+        kelas3ProgressData[semester] =
+            Array.isArray(data.completed_indices)
+                ? data.completed_indices.map(Number)
+                : [];
+
+        renderKelas3ProgressUI();
+        renderKelas3ModuleList();
+
+    } catch (error) {
+        console.error('Gagal memuat progres:', error);
+    }
+}
+
+async function toggleKelas3Progress(event, index) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const semester = kelas3SemesterAktif;
+    const completed = new Set(
+        (kelas3ProgressData[semester] || []).map(Number)
+    );
+
+    const markDone = !completed.has(index);
+    const csrf = document.querySelector(
+        'meta[name="csrf-token"]'
+    );
+
+    if (!csrf) {
+        alert('Token keamanan tidak ditemukan. Muat ulang halaman.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('semester', String(semester));
+    formData.append('material_index', String(index));
+    formData.append('completed', markDone ? '1' : '0');
+
+    try {
+        const response = await fetch('/learning-progress', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf.content
+            },
+            credentials: 'same-origin',
+            body: formData
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 419) {
+                alert('Sesi login tidak tersedia. Silakan login kembali.');
+                return;
+            }
+
+            alert(data.message || 'Progres gagal diperbarui.');
+            return;
+        }
+
+        if (Array.isArray(data.progress?.completed_indices)) {
+            kelas3ProgressData[semester] =
+                data.progress.completed_indices.map(Number);
+        }
+
+        renderKelas3ProgressUI();
+        renderKelas3ModuleList();
+
+    } catch (error) {
+        console.error('Gagal menyimpan progres:', error);
+        alert('Tidak dapat terhubung ke server. Coba lagi.');
+    }
+}
+
+
 function setKelas3Semester(semester) {
-  kelas3SemesterAktif = Number(semester) === 2 ? 2 : 1;
-  kelas3MateriAktif = 0;
-  const title = document.getElementById('kelas3-course-title');
-  const progress = document.getElementById('kelas3-course-progress');
-  const list = document.getElementById('kelas3-module-list');
-  if (title) title.textContent = `Matematika Kelas 3 · Semester ${kelas3SemesterAktif}`;
-  if (progress) progress.textContent = `${KELAS3_MATERI[kelas3SemesterAktif].length} materi tersedia`;
-  if (list) {
-    list.innerHTML = KELAS3_MATERI[kelas3SemesterAktif].map((materi, index) => `
-      <div class="dk-module-card ${index === 0 ? 'active' : ''}" ${index === 0 ? `onclick="openKelas3Materi(${index})"` : `onclick="openKelas3Materi(${index})"`} style="cursor:pointer">
-        <div class="dk-icon ${index === 0 ? 'play' : 'lock'}">${index === 0 ? '▶' : '📘'}</div>
-        <div class="dk-module-info"><span class="bab">Materi ${index + 1}</span><h4>${materi.title}</h4><span class="time">${materi.time}</span></div>
-        <div class="dk-arrow">›</div>
-      </div>`).join('');
-  }
-  const note = document.querySelector('#belajar-ai .ba-note');
-  if (note) note.textContent = `Kelas 3 · Semester ${kelas3SemesterAktif}: ${KELAS3_MATERI[kelas3SemesterAktif].length} materi Matematika siap dipelajari.`;
+    kelas3SemesterAktif = Number(semester) === 2 ? 2 : 1;
+    kelas3MateriAktif = 0;
+
+    const title = document.getElementById('kelas3-course-title');
+
+    if (title) {
+        title.textContent =
+            `Matematika Kelas 3 · Semester ${kelas3SemesterAktif}`;
+    }
+
+    renderKelas3ProgressUI();
+    renderKelas3ModuleList();
+    loadKelas3Progress(kelas3SemesterAktif);
+
+    const note = document.querySelector('#belajar-ai .ba-note');
+
+    if (note) {
+        note.textContent =
+            `Kelas 3 · Semester ${kelas3SemesterAktif}: ` +
+            `${KELAS3_MATERI[kelas3SemesterAktif].length} materi Matematika siap dipelajari.`;
+    }
 }
 
 function openKelas3Materi(index) {
