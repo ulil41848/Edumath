@@ -910,7 +910,7 @@
                     <h2>Detail Kursus</h2>
                 </div>
 
-                <div class="jd-course-card">
+                <div class="jd-course-card hidden">
                     <div class="jd-course-top">
                         <h3>Matematika Dasar Kelas 3</h3>
                         <span class="jd-count">12/16</span>
@@ -927,6 +927,7 @@
 
         <div class="jd-body">
 
+            <div id="legacy-course-controls" hidden>
             <!-- DESKRIPSI -->
             <p class="jd-label">Deskripsi Pelajaran</p>
             <p class="jd-desc">
@@ -1001,6 +1002,8 @@
                     </div>
                     <button type="button" class="jd-change" id="jd-save">Ubah Jadwal</button>
                 </div>
+            </div>
+
             </div>
 
             <!-- JADWAL KHUSUS: tanggal, materi, durasi, dan pengingat email -->
