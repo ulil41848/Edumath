@@ -1057,10 +1057,10 @@
         <div class="dk-content">
 
             <!-- KARTU PROGRES BIRU -->
-            <div class="dk-progress-card">
-                <div class="dk-circle-progress">
-                    <span>75%</span>
-                </div>
+            <div class="dk-progress-card">          
+            <div class="dk-circle-progress" id="kelas3-progress-circle" style="--progress: 0%;">
+                <span id="kelas3-progress-percent">0%</span>
+            </div>
                 <div class="dk-progress-text">
                     <h3>Progres Belajar</h3>
                     <p id="kelas3-course-progress">Materi tersedia untuk dipelajari</p>

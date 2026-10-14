@@ -29,3 +29,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/study-schedules', [CourseStudyScheduleController::class, 'store'])->name('study-schedules.store');
     Route::delete('/study-schedules/{schedule}', [CourseStudyScheduleController::class, 'destroy'])->name('study-schedules.destroy');
 });
+Route::middleware('auth')->prefix('learning-progress')->group(function () {
+    Route::get('/', [
+        \App\Http\Controllers\LearningProgressController::class,
+        'index',
+    ])->name('learning-progress.index');
+
+    Route::post('/', [
+        \App\Http\Controllers\LearningProgressController::class,
+        'update',
+    ])->name('learning-progress.update');
+});
