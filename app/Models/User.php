@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\CourseStudySchedule;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -22,6 +24,8 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function courseStudySchedules(): HasMany { return $this->hasMany(CourseStudySchedule::class); }
+
     protected function casts(): array
     {
         return [

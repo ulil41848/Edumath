@@ -8,6 +8,7 @@
     <title>EduMath</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ asset('study-schedule.css') }}">
 </head>
 
 <body>
@@ -847,7 +848,7 @@
     </section>
 <!-- TANYA AI CHAT PAGE -->
     <section id="tanya-ai" class="screen hidden">
-       
+
         <!-- HEADER CHAT -->
         <div class="chat-header">
             <div class="back-button" onclick="showPage('edubot')">‹</div>
@@ -863,7 +864,7 @@
 
         <!-- AREA PESAN / CHAT BODY -->
         <div class="chat-body">
-           
+
             <!-- PESAN DARI USER -->
             <div class="chat-bubble user">
                 <p>EduBot, jelaskan apa perbedaan antara gaya magnet dan gaya gravitasi secara sederhana dong!</p>
@@ -1002,6 +1003,35 @@
                 </div>
             </div>
 
+            <!-- JADWAL KHUSUS: tanggal, materi, durasi, dan pengingat email -->
+            <h3 class="jd-heading">Buat Jadwal Belajar</h3>
+            <div class="jd-card jd-extra-card">
+                <div class="jd-extra-grid">
+                    <label class="jd-extra-field">Tanggal dan jam mulai
+                        <input type="datetime-local" id="study-starts-at" required>
+                    </label>
+                    <label class="jd-extra-field">Semester
+                        <select id="study-semester"><option value="1">Semester 1 · Penjumlahan & Pengurangan</option><option value="2">Semester 2 · Perkalian & Pembagian</option></select>
+                    </label>
+                    <label class="jd-extra-field">Materi yang dipelajari
+                        <select id="study-material"><option>Penjumlahan</option><option>Pengurangan</option><option>Soal Cerita Penjumlahan dan Pengurangan</option></select>
+                    </label>
+                    <label class="jd-extra-field">Durasi belajar
+                        <select id="study-duration"><option value="15">15 menit</option><option value="30" selected>30 menit</option><option value="45">45 menit</option><option value="60">60 menit</option><option value="90">90 menit</option><option value="120">120 menit</option></select>
+                    </label>
+                    <label class="jd-extra-field">Email pengingat (Gmail atau email lain)
+                        <input type="email" id="study-reminder-email" placeholder="nama@gmail.com" required>
+                    </label>
+                    <label class="jd-extra-field">Kirim pengingat
+                        <select id="study-reminder-minutes"><option value="5">5 menit sebelumnya</option><option value="10">10 menit sebelumnya</option><option value="15" selected>15 menit sebelumnya</option><option value="30">30 menit sebelumnya</option><option value="60">1 jam sebelumnya</option></select>
+                    </label>
+                </div>
+                <button type="button" class="jd-change jd-save-study" id="study-schedule-save">Simpan Jadwal</button>
+                <p id="study-schedule-status" class="jd-desc" role="status" aria-live="polite"></p>
+            </div>
+            <h3 class="jd-heading">Jadwal Mendatang</h3>
+            <div class="jd-card" id="study-schedule-list"><p class="jd-desc">Jadwal yang disimpan akan muncul di sini setelah akun terhubung.</p></div>
+
             <!-- TOMBOL MULAI -->
             <button type="button" class="jd-start" onclick="showPage('detail-kursus')">MULAI</button>
 
@@ -1013,7 +1043,7 @@
     </section>
     <!-- DETAIL KURSUS PAGE -->
     <section id="detail-kursus" class="screen feature-screen hidden">
-        
+
         <!-- HEADER -->
         <div class="dk-header">
             <!-- Tombol back kembali ke halaman Kursus Saya (belajar-ai) -->
@@ -1022,7 +1052,7 @@
         </div>
 
         <div class="dk-content">
-            
+
             <!-- KARTU PROGRES BIRU -->
             <div class="dk-progress-card">
                 <div class="dk-circle-progress">
@@ -1050,7 +1080,7 @@
     </section>
     <!-- HALAMAN MATERI PAGE -->
     <section id="halaman-materi" class="screen feature-screen hidden">
-        
+
         <!-- HEADER -->
         <div class="hm-header">
             <div class="back-button" onclick="showPage('detail-kursus')">‹</div>
@@ -1058,7 +1088,7 @@
         </div>
 
         <div class="hm-content">
-            
+
             <!-- VIDEO PLACEHOLDER -->
             <div class="hm-video-box">
                 <div class="hm-play-btn">▶</div>
@@ -1085,7 +1115,7 @@
                     <li>Periksa kembali hasil pertambahan.</li>
                 </ul>
             </div>
-            
+
         </div>
 
         <!-- TOMBOL MULAI KUIS (BAR BAWAH) -->
@@ -1096,21 +1126,21 @@
     </section>
     <!-- HALAMAN KUIS PAGE -->
     <section id="halaman-kuis" class="screen feature-screen hidden">
-        
+
         <!-- HEADER -->
         <div class="hk-header">
             <div class="back-button" onclick="showPage('halaman-materi')">‹</div>
             <h2>Kuis Bab 3</h2>
             <span class="hk-progress-text">Soal 2 dari 5</span>
         </div>
-        
+
         <!-- PROGRESS BAR ATAS -->
         <div class="hk-progress-bar-container">
             <div class="hk-progress-bar-fill" style="width: 40%;"></div>
         </div>
 
         <div class="hk-content">
-            
+
             <!-- KARTU PERTANYAAN -->
             <div class="hk-question-card">
                 <span class="hk-question-label">PERTANYAAN</span>
@@ -1119,23 +1149,23 @@
 
             <!-- PILIHAN JAWABAN -->
             <div class="hk-options">
-                
+
                 <div class="hk-option">
                     <div class="hk-radio"></div>
                     <span>A. 90°</span>
                 </div>
-                
+
                 <!-- PILIHAN B: AKTIF/TERPILIH -->
                 <div class="hk-option active">
                     <div class="hk-radio"><div class="hk-radio-inner"></div></div>
                     <span>B. 180°</span>
                 </div>
-                
+
                 <div class="hk-option">
                     <div class="hk-radio"></div>
                     <span>C. 270°</span>
                 </div>
-                
+
                 <div class="hk-option">
                     <div class="hk-radio"></div>
                     <span>D. 360°</span>
@@ -1154,5 +1184,6 @@
 
     <script src="script.js"></script>
 
+    <script src="{{ asset('study-schedule.js') }}"></script>
 </body>
 </html>
