@@ -1071,7 +1071,6 @@
             <div class="dk-tabs">
                 <div class="dk-tab active">Materi</div>
                 <div class="dk-tab">Kuis</div>
-                <div class="dk-tab">Diskusi</div>
             </div>
 
             <!-- DAFTAR MATERI (BAB) -->

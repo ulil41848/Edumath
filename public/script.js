@@ -1,14 +1,161 @@
-// Setelah 2 detik,
-// Splash Screen berpindah ke Login
 
-setTimeout(function () {
+const EDU_LAST_PAGE_KEY = "edumath_last_page";
 
-    document.getElementById("splash").classList.add("hidden");
+const EDU_RESTORABLE_PAGES = [
+    "home",
+    "edubot",
+    "pustaka",
+    "kilas",
+    "guru",
+    "notifications",
+    "profile",
+    "account-settings",
+    "tanya-ai",
+    "belajar-ai",
+    "jadwal",
+    "detail-kursus",
+    "halaman-materi",
+    "halaman-kuis"
+];
 
-    document.getElementById("login").classList.remove("hidden");
+async function restoreEduMathAfterRefresh() {
+    const splash = document.getElementById("splash");
+    const loginScreen = document.getElementById("login");
+    const bottomNav = document.getElementById("bottom-nav");
 
-}, 3000);
+    function hideAllScreens() {
+        document.querySelectorAll(".screen").forEach(screen => {
+            screen.classList.add("hidden");
+        });
+    }
 
+    try {
+        // Periksa sesi login langsung ke Laravel.
+        const response = await fetch("/account", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            },
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (splash) {
+            splash.classList.add("hidden");
+        }
+
+        // Jika sesi tidak berlaku, tampilkan login.
+        if (response.status === 401 || response.status === 419) {
+            sessionStorage.removeItem(EDU_LAST_PAGE_KEY);
+
+            hideAllScreens();
+
+            if (loginScreen) {
+                loginScreen.classList.remove("hidden");
+            }
+
+            if (bottomNav) {
+                bottomNav.classList.add("hidden");
+            }
+
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Tidak dapat memeriksa sesi login.");
+        }
+
+        // Perbarui nama pengguna dari server.
+        if (data.user) {
+            updateProfileDisplay(data.user);
+        }
+
+        // Ambil halaman yang terakhir dibuka.
+        const savedPage = sessionStorage.getItem(EDU_LAST_PAGE_KEY);
+
+        const pageId =
+            EDU_RESTORABLE_PAGES.includes(savedPage) &&
+            document.getElementById(savedPage)
+                ? savedPage
+                : "home";
+
+        hideAllScreens();
+
+        document.getElementById(pageId).classList.remove("hidden");
+
+        if (bottomNav) {
+            bottomNav.classList.remove("hidden");
+        }
+
+        // Pulihkan tampilan halaman yang membutuhkan data tambahan.
+        if (
+            pageId === "account-settings" &&
+            typeof openAccountSettings === "function"
+        ) {
+            await openAccountSettings();
+        }
+
+        if (
+            pageId === "detail-kursus" &&
+            typeof setKelas3Semester === "function"
+        ) {
+            const semester =
+                Number(sessionStorage.getItem("edumath_kelas3_semester"));
+
+            setKelas3Semester(semester === 2 ? 2 : 1);
+        }
+
+        if (
+            pageId === "halaman-materi" &&
+            typeof openKelas3Materi === "function"
+        ) {
+            const semester =
+                Number(sessionStorage.getItem("edumath_kelas3_semester"));
+
+            const storedIndex =
+                Number(sessionStorage.getItem("edumath_kelas3_materi"));
+
+            const materialIndex =
+                Number.isInteger(storedIndex) &&
+                storedIndex >= 0 &&
+                storedIndex <= 2
+                    ? storedIndex
+                    : 0;
+
+            setKelas3Semester(semester === 2 ? 2 : 1);
+            openKelas3Materi(materialIndex);
+        }
+
+        // Muat kembali progres jika halaman detail kursus dibuka.
+        if (
+            pageId === "detail-kursus" &&
+            typeof loadKelas3Progress === "function"
+        ) {
+            loadKelas3Progress(kelas3SemesterAktif);
+        }
+
+    } catch (error) {
+        console.error("Gagal memulihkan halaman EduMath:", error);
+
+        if (splash) {
+            splash.classList.add("hidden");
+        }
+
+        hideAllScreens();
+
+        if (loginScreen) {
+            loginScreen.classList.remove("hidden");
+        }
+
+        if (bottomNav) {
+            bottomNav.classList.add("hidden");
+        }
+    }
+}
+
+restoreEduMathAfterRefresh();
 
 // Fungsi tombol login
 
@@ -59,6 +206,7 @@ async function login() {
 
         document.getElementById("login").classList.add("hidden");
         document.getElementById("home").classList.remove("hidden");
+        sessionStorage.setItem(EDU_LAST_PAGE_KEY, "home");
 
         const bottomNav = document.getElementById("bottom-nav");
 
@@ -110,6 +258,9 @@ function showPage(pageId) {
     }
 
     document.getElementById(pageId).classList.remove("hidden");
+    if (EDU_RESTORABLE_PAGES.includes(pageId)) {
+    sessionStorage.setItem(EDU_LAST_PAGE_KEY, pageId);
+}
     if (pageId === 'detail-kursus') {
     loadKelas3Progress(kelas3SemesterAktif);
 }
@@ -149,6 +300,7 @@ function showHome() {
     }
 
     document.getElementById("home").classList.remove("hidden");
+    sessionStorage.setItem(EDU_LAST_PAGE_KEY, "home");
 }
 // Membaca satu notifikasi
 function readNotification(element) {
@@ -918,6 +1070,10 @@ async function toggleKelas3Progress(event, index) {
 
 function setKelas3Semester(semester) {
     kelas3SemesterAktif = Number(semester) === 2 ? 2 : 1;
+    sessionStorage.setItem(
+    "edumath_kelas3_semester",
+    String(kelas3SemesterAktif)
+);
     kelas3MateriAktif = 0;
 
     const title = document.getElementById('kelas3-course-title');
@@ -944,6 +1100,10 @@ function openKelas3Materi(index) {
   const materi = KELAS3_MATERI[kelas3SemesterAktif]?.[index];
   if (!materi) return;
   kelas3MateriAktif = index;
+  sessionStorage.setItem(
+    "edumath_kelas3_materi",
+    String(index)
+);
   const header = document.getElementById('kelas3-lesson-header');
   const title = document.getElementById('kelas3-lesson-title');
   const subtitle = document.getElementById('kelas3-lesson-subtitle');
