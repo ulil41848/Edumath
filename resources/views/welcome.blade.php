@@ -859,40 +859,77 @@
                     <span class="status-online">Aktif & Online</span>
                 </div>
             </div>
-            <div class="chat-settings">⚙️</div>
+            <button
+    type="button"
+    class="chat-settings"
+    id="edubot-settings-button"
+    onclick="toggleEduBotSettingsMenu()"
+    aria-label="Pengaturan percakapan"
+    aria-expanded="false"
+>
+    ⚙️
+</button>
         </div>
 
-        <!-- AREA PESAN / CHAT BODY -->
-        <div class="chat-body">
+<!-- MENU PENGATURAN EDUBOT -->
+<div id="edubot-settings-menu" class="edubot-settings-menu hidden">
+    <button type="button" onclick="clearEduBotMessages()">
+        🗑️ Hapus semua pesan
+    </button>
 
-            <!-- PESAN DARI USER -->
-            <div class="chat-bubble user">
-                <p>EduBot, jelaskan apa perbedaan antara gaya magnet dan gaya gravitasi secara sederhana dong!</p>
-                <span class="chat-time">09:42</span>
+    <button type="button" onclick="shareEduBotConversation()">
+        ↗️ Bagikan percakapan
+    </button>
+</div>
+    <!-- AREA PESAN / CHAT BODY -->
+    <div class="chat-body" id="edubot-messages" aria-live="polite">
+
+        <div class="chat-bubble-container bot">
+            <div class="bot-icon">🤖</div>
+            <div class="chat-bubble bot">
+                <h4>EduBot</h4>
+                <p>
+                    Halo! Kamu bisa mengirim pertanyaan lewat teks
+                    atau pesan suara. Respons AI akan tersedia
+                    setelah integrasi AI selesai.
+                </p>
+                <span class="chat-time">EduBot</span>
             </div>
-
-            <!-- PESAN DARI BOT -->
-            <div class="chat-bubble-container bot">
-                <div class="bot-icon">🤖</div>
-                <div class="chat-bubble bot">
-                    <h4>EduBot</h4>
-                    <p>Tentu! Gini ya:</p>
-                    <ol>
-                        <li><b>Gaya Gravitasi</b> itu selalu menarik semua benda ke pusat bumi. Mirip seperti mangga jatuh dari pohonnya.</li>
-                        <li><b>Gaya Magnet</b> hanya bekerja pada benda logam tertentu (bisa tarik-menarik atau tolak-menolak).</li>
-                    </ol>
-                    <span class="chat-time">09:43</span>
-                </div>
-            </div>
-
         </div>
 
-        <!-- INPUT CHAT (BAR BAWAH) -->
-        <div class="chat-input-area">
-            <input type="text" placeholder="Ketik pertanyaanmu di sini...">
-            <button class="send-btn">➤</button>
-        </div>
+    </div>
 
+    <!-- INPUT CHAT -->
+    <form class="chat-input-area"
+        id="edubot-chat-form"
+        onsubmit="sendEduBotText(event)">
+
+        <input
+            type="text"
+            id="edubot-text-input"
+            placeholder="Ketik pertanyaanmu di sini..."
+            maxlength="2000"
+            autocomplete="off"
+            aria-label="Pesan untuk EduBot"
+        >
+
+        <button
+            type="button"
+            class="voice-btn"
+            id="edubot-record-btn"
+            onclick="toggleEduBotRecording()"
+            aria-label="Rekam pesan suara"
+            title="Rekam pesan suara"
+        >🎙️</button>
+
+        <button
+            type="submit"
+            class="send-btn"
+            aria-label="Kirim pesan"
+            title="Kirim pesan"
+        >➤</button>
+
+    </form>
     </section>
     <!-- JADWAL PAGE (PENJADWALAN KURSUS / DETAIL KURSUS) -->
     <section id="jadwal" class="screen feature-screen hidden">

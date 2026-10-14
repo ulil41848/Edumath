@@ -1121,3 +1121,388 @@ function openKelas3Materi(index) {
 document.addEventListener('DOMContentLoaded', function () {
   if (document.getElementById('kelas3-module-list')) setKelas3Semester(1);
 });
+
+/* ==========================================
+   EDUBOT: PESAN TEKS DAN PESAN SUARA
+   ========================================== */
+
+let eduBotRecorder = null;
+let eduBotAudioStream = null;
+let eduBotAudioChunks = [];
+
+function appendEduBotMessage({ text = null, audioUrl = null }) {
+    const chat = document.getElementById("edubot-messages");
+
+    if (!chat) {
+        alert("Area percakapan EduBot tidak ditemukan.");
+        return;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "chat-bubble-container user";
+
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble user";
+
+    if (text !== null) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        paragraph.style.whiteSpace = "pre-wrap";
+        bubble.appendChild(paragraph);
+    }
+
+    if (audioUrl !== null) {
+        const label = document.createElement("p");
+        label.textContent = "🎙️ Pesan suara";
+        bubble.appendChild(label);
+
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        audio.preload = "metadata";
+        audio.src = audioUrl;
+        audio.style.display = "block";
+        audio.style.maxWidth = "100%";
+        audio.style.marginTop = "8px";
+
+        bubble.appendChild(audio);
+    }
+
+    const time = document.createElement("span");
+    time.className = "chat-time";
+    time.textContent = new Date().toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    bubble.appendChild(time);
+    wrapper.appendChild(bubble);
+    chat.appendChild(wrapper);
+
+    // Gulir ke pesan terakhir.
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function sendEduBotText(event) {
+    event.preventDefault();
+
+    const input = document.getElementById("edubot-text-input");
+
+    if (!input) {
+        alert("Kolom pesan EduBot tidak ditemukan.");
+        return;
+    }
+
+    const text = input.value.trim();
+
+    if (!text) {
+        input.focus();
+        return;
+    }
+
+    if (text.length > 2000) {
+        alert("Pesan maksimal 2.000 karakter.");
+        return;
+    }
+
+    appendEduBotMessage({ text });
+
+    input.value = "";
+    input.focus();
+
+    // Pesan akan dikirim ke AI setelah endpoint AI tersedia.
+}
+
+async function toggleEduBotRecording() {
+    const button = document.getElementById("edubot-record-btn");
+    const input = document.getElementById("edubot-text-input");
+
+    if (!button) return;
+
+    // Jika sedang merekam, tekan tombol lagi untuk berhenti.
+    if (eduBotRecorder && eduBotRecorder.state === "recording") {
+        eduBotRecorder.stop();
+        button.disabled = true;
+        button.textContent = "⏳";
+        return;
+    }
+
+    if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia ||
+        !window.MediaRecorder
+    ) {
+        alert(
+            "Browser ini belum mendukung perekaman suara. " +
+            "Gunakan browser terbaru dan buka melalui localhost."
+        );
+        return;
+    }
+
+    try {
+        // Browser akan meminta izin menggunakan mikrofon.
+        eduBotAudioStream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: true
+            });
+
+        eduBotAudioChunks = [];
+
+        const mimeCandidates = [
+            "audio/webm;codecs=opus",
+            "audio/webm",
+            "audio/ogg;codecs=opus"
+        ];
+
+        const mimeType = mimeCandidates.find(type =>
+            MediaRecorder.isTypeSupported(type)
+        );
+
+        eduBotRecorder = mimeType
+            ? new MediaRecorder(eduBotAudioStream, { mimeType })
+            : new MediaRecorder(eduBotAudioStream);
+
+        const recorder = eduBotRecorder;
+
+        recorder.ondataavailable = event => {
+            if (event.data && event.data.size > 0) {
+                eduBotAudioChunks.push(event.data);
+            }
+        };
+
+        recorder.onstop = () => {
+            const blob = new Blob(eduBotAudioChunks, {
+                type: recorder.mimeType || "audio/webm"
+            });
+
+            // Matikan mikrofon setelah perekaman selesai.
+            if (eduBotAudioStream) {
+                eduBotAudioStream.getTracks().forEach(track => {
+                    track.stop();
+                });
+                eduBotAudioStream = null;
+            }
+
+            button.disabled = false;
+            button.textContent = "🎙️";
+            button.setAttribute("aria-label", "Rekam pesan suara");
+            button.title = "Rekam pesan suara";
+
+            if (input) {
+                input.placeholder = "Ketik pertanyaanmu di sini...";
+            }
+
+            if (blob.size > 0) {
+                const audioUrl = URL.createObjectURL(blob);
+                appendEduBotMessage({ audioUrl });
+            } else {
+                alert("Rekaman kosong. Silakan coba kembali.");
+            }
+
+            eduBotAudioChunks = [];
+        };
+
+        recorder.onerror = () => {
+            if (eduBotAudioStream) {
+                eduBotAudioStream.getTracks().forEach(track => {
+                    track.stop();
+                });
+                eduBotAudioStream = null;
+            }
+
+            button.disabled = false;
+            button.textContent = "🎙️";
+
+            if (input) {
+                input.placeholder = "Ketik pertanyaanmu di sini...";
+            }
+
+            alert("Terjadi masalah saat merekam suara.");
+        };
+
+        recorder.start();
+
+        button.textContent = "⏹️";
+        button.setAttribute("aria-label", "Hentikan rekaman");
+        button.title = "Hentikan rekaman";
+
+        if (input) {
+            input.placeholder =
+                "Sedang merekam... tekan tombol stop untuk selesai";
+        }
+
+    } catch (error) {
+        console.error("Gagal mengakses mikrofon:", error);
+
+        if (eduBotAudioStream) {
+            eduBotAudioStream.getTracks().forEach(track => {
+                track.stop();
+            });
+            eduBotAudioStream = null;
+        }
+
+        button.textContent = "🎙️";
+        button.disabled = false;
+
+        alert(
+            "Mikrofon tidak dapat digunakan. " +
+            "Izinkan akses mikrofon pada browser, lalu coba lagi."
+        );
+    }
+}
+
+/* =====================================
+   EDUBOT: MENU, HAPUS PESAN, DAN BERBAGI
+   ===================================== */
+
+function toggleEduBotSettingsMenu() {
+    const menu = document.getElementById("edubot-settings-menu");
+    const button = document.getElementById("edubot-settings-button");
+
+    if (!menu || !button) return;
+
+    const isOpening = menu.classList.contains("hidden");
+
+    menu.classList.toggle("hidden", !isOpening);
+    button.setAttribute("aria-expanded", String(isOpening));
+}
+
+function closeEduBotSettingsMenu() {
+    const menu = document.getElementById("edubot-settings-menu");
+    const button = document.getElementById("edubot-settings-button");
+
+    if (menu) menu.classList.add("hidden");
+
+    if (button) button.setAttribute("aria-expanded", "false");
+}
+
+// Tutup menu jika pengguna mengeklik di luar menu.
+document.addEventListener("click", function (event) {
+    if (
+        !event.target.closest("#edubot-settings-menu") &&
+        !event.target.closest("#edubot-settings-button")
+    ) {
+        closeEduBotSettingsMenu();
+    }
+});
+
+// Menghapus seluruh pesan di area percakapan.
+function clearEduBotMessages() {
+    const chat = document.getElementById("edubot-messages");
+
+    if (!chat) {
+        alert("Area percakapan EduBot tidak ditemukan.");
+        return;
+    }
+
+    const confirmed = confirm(
+        "Hapus semua pesan dalam percakapan EduBot ini?"
+    );
+
+    if (!confirmed) return;
+
+    // Hentikan audio dan lepaskan URL rekaman sementara.
+    chat.querySelectorAll("audio").forEach(audio => {
+        audio.pause();
+
+        if (audio.src.startsWith("blob:")) {
+            URL.revokeObjectURL(audio.src);
+        }
+    });
+
+    chat.replaceChildren();
+
+    closeEduBotSettingsMenu();
+
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "edubot-empty-message";
+    emptyMessage.textContent =
+        "Percakapan telah dibersihkan. Mulai pesan baru di bawah.";
+
+    chat.appendChild(emptyMessage);
+
+    alert("Semua pesan berhasil dihapus dari tampilan percakapan.");
+}
+
+// Menyusun percakapan menjadi teks untuk dibagikan.
+function getEduBotShareText() {
+    const chat = document.getElementById("edubot-messages");
+
+    if (!chat) return "";
+
+    const bubbles = [...chat.querySelectorAll(".chat-bubble")];
+
+    const lines = bubbles.map(bubble => {
+        const isUser = bubble.classList.contains("user");
+        const speaker = isUser ? "Saya" : "EduBot";
+
+        const clone = bubble.cloneNode(true);
+
+        // Hapus elemen waktu dan kontrol audio dari salinan teks.
+        clone.querySelectorAll(".chat-time, audio, button").forEach(el => {
+            el.remove();
+        });
+
+        let content = clone.innerText.trim();
+
+        if (bubble.querySelector("audio")) {
+            content += content
+                ? "\n[Pesan suara; file audio tidak disertakan]"
+                : "[Pesan suara; file audio tidak disertakan]";
+        }
+
+        if (!content) return "";
+
+        return `${speaker}: ${content}`;
+    }).filter(Boolean);
+
+    return [
+        "Percakapan EduBot AI — EduMath",
+        "",
+        ...lines
+    ].join("\n\n");
+}
+
+// Membagikan percakapan melalui fitur berbagi perangkat
+// atau menyalin teks jika fitur itu tidak tersedia.
+async function shareEduBotConversation() {
+    const text = getEduBotShareText();
+
+    closeEduBotSettingsMenu();
+
+    if (!text.trim()) {
+        alert("Belum ada pesan untuk dibagikan.");
+        return;
+    }
+
+    try {
+        if (navigator.share) {
+            await navigator.share({
+                title: "Percakapan EduBot — EduMath",
+                text: text
+            });
+
+            return;
+        }
+
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+
+            alert(
+                "Percakapan berhasil disalin. " +
+                "Anda dapat menempelkannya ke WhatsApp atau aplikasi lain."
+            );
+
+            return;
+        }
+
+        window.prompt("Salin teks percakapan berikut:", text);
+
+    } catch (error) {
+        // Pengguna mungkin membatalkan dialog berbagi.
+        if (error.name === "AbortError") return;
+
+        console.error("Gagal membagikan percakapan:", error);
+
+        window.prompt("Salin teks percakapan berikut:", text);
+    }
+}

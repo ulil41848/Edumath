@@ -2048,3 +2048,86 @@ body:has(.redesign-home:not(.hidden)){overflow:auto;background:#f5f9ff;color:#17
 .ba-content{padding:22px;max-width:1200px;margin:0 auto}.ba-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}.ba-section-heading h3{margin:4px 0 0;font-size:20px;color:#15345e}.ba-section-heading h3 span{font-weight:500;color:#6d829d}.ba-eyebrow{font-size:10px;letter-spacing:1.2px;font-weight:800;color:#168fdf}.ba-active-note{font-size:12px;font-weight:700;color:#07895d;background:#e1f8ef;padding:8px 12px;border-radius:20px}
 .ba-class-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ba-class-card{position:relative;min-height:105px;border:1px solid #e5edf5;border-radius:16px;background:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:14px 16px;text-align:left;box-shadow:0 3px 12px #19395c0a;color:#17345d}.ba-class-number{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#eef5ff;color:#267fe0;font-weight:800}.ba-class-card strong{font-size:14px}.ba-class-card small{font-size:11px;color:#8191a7}.ba-class-card.is-active{border:2px solid #18a9e7;background:linear-gradient(135deg,#f0fbff,#fff);box-shadow:0 5px 16px #159fe81c}.ba-class-card.is-active .ba-class-number{background:#159fe8;color:#fff}.ba-class-card.is-locked{background:#f7f9fc;color:#9aa8b8;cursor:not-allowed;box-shadow:none}.ba-class-card.is-locked .ba-class-number{background:#e9edf2;color:#8795a5}.ba-lock,.ba-check{position:absolute;right:14px;top:14px;font-size:13px}.ba-check{color:#0b9b6d;font-weight:900}.ba-semester-heading{margin-top:28px}.ba-semester-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ba-semester-card{display:flex;align-items:center;gap:14px;text-align:left;padding:18px;border:1px solid #e8eef5;border-radius:16px;background:#fff;box-shadow:0 4px 14px #17395b0b;cursor:pointer;color:#17345d;transition:transform .15s,box-shadow .15s}.ba-semester-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px #17395b15}.ba-semester-icon{width:54px;height:54px;flex:0 0 54px;border-radius:15px;display:grid;place-items:center;font-size:26px}.ba-blue{background:#e6f5ff}.ba-purple{background:#f0eaff}.ba-semester-copy{display:flex;flex-direction:column;gap:5px}.ba-semester-copy strong{font-size:15px}.ba-semester-copy small{font-size:12px;color:#8191a7}.ba-semester-tag{font-size:12px;font-weight:700;color:#138fd2;margin-top:3px}.ba-note{margin:16px 0 0;color:#8191a7;font-size:12px;line-height:1.6}
 @media(max-width:650px){.ba-content{padding:16px}.ba-class-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ba-class-card{min-height:100px;padding:12px}.ba-semester-grid{grid-template-columns:1fr}.ba-header{padding:15px}.ba-header h2{font-size:19px}}
+
+/* =====================================
+   EDUBOT: POSISI CHAT DAN MENU PENGATURAN
+   ===================================== */
+
+#tanya-ai {
+    position: relative;
+}
+
+/* Pesan pengguna berada di sisi kanan */
+#edubot-messages .chat-bubble-container.user {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-left: auto;
+}
+
+/* Batasi lebar gelembung agar enak dibaca */
+#edubot-messages .chat-bubble.user {
+    align-self: auto;
+    margin-left: auto;
+    width: fit-content;
+    max-width: 82%;
+    overflow-wrap: anywhere;
+}
+
+/* Tombol pengaturan di header */
+.chat-settings {
+    border: 0;
+    background: transparent;
+    border-radius: 50%;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chat-settings:hover {
+    background: #eef7fc;
+}
+
+/* Menu yang terbuka dari ikon pengaturan */
+.edubot-settings-menu {
+    position: absolute;
+    top: 58px;
+    right: 12px;
+    z-index: 1005;
+    width: min(240px, calc(100% - 24px));
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid #e5edf3;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    flex-direction: column;
+    gap: 4px;
+}
+
+.edubot-settings-menu:not(.hidden) {
+    display: flex;
+}
+
+.edubot-settings-menu button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    border-radius: 9px;
+    padding: 12px;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+    color: #263746;
+    cursor: pointer;
+}
+
+.edubot-settings-menu button:hover {
+    background: #f0f9ff;
+}
+
+.edubot-settings-menu button:first-child {
+    color: #dc2626;
+}
