@@ -8,7 +8,6 @@
     <title>EduMath</title>
 
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="{{ asset('study-schedule.css') }}">
 </head>
 
 <body>
@@ -168,88 +167,15 @@
                 <p>Teruslah belajar dan raih cita-citamu bersama kami!</p>
                 <button class="rd-primary" type="button" onclick="showPage('edubot')">Mulai Belajar <span>→</span></button>
             </div>
-            <div class="rd-hero-art" aria-hidden="true"><span class="rd-equation">a² + b² = c²</span><div class="rd-book">📚</div><div class="rd-bulb">💡</div><div class="rd-mascot">🧑🏻‍🎓</div></div>
+            <div class="rd-hero-art" aria-hidden="true"><span class="rd-equation">a² + b² = c²</span><div class="rd-book">📚</div><div class="rd-bulb">💡</div><div class="rd-mascot" style="width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">
+                    <img src="{{ asset('assets/edumath-mascot.jpeg') }}" alt="Maskot EduMath: siswa belajar matematika" style="display:block;width:100%;height:100%;max-width:100%;object-fit:contain;object-position:center bottom;mix-blend-mode:screen;">
+                </div></div>
         </section>
-        
         <section class="rd-stats" aria-label="Statistik belajar">
-            
-        <!-- Progress Kursus Terakhir -->
-    <article class="rd-stat rd-stat-green">
-        <span class="rd-stat-icon">🎓</span>
-        <div>
-            <strong id="dashboard-course-percent">0%</strong>
-            <p>Progress Kursus Terakhir</p>
-            <small id="dashboard-course-name">Belum ada kursus dibuka</small>
-            <div class="rd-progress">
-                <i id="dashboard-course-bar" style="width:0%"></i>
-            </div>
-        </div>
-    </article>
-
-<!-- Day Streak -->
-<article class="rd-stat rd-stat-purple rd-streak-card">
-    <span class="rd-stat-icon">🗓️</span>
-
-    <div class="rd-streak-content">
-        <strong id="dashboard-day-streak">0</strong>
-        <p>Day Streak</p>
-
-        <div class="rd-progress">
-            <i id="dashboard-streak-bar" style="width: 0%"></i>
-        </div>
-
-        <div class="rd-streak-history">
-            <div class="rd-streak-history-header">
-                <strong>Riwayat Login</strong>
-                <span id="streak-total-days">0 hari</span>
-            </div>
-
-            <p class="rd-streak-subtitle">Aktivitas 28 hari terakhir</p>
-
-            <div
-                id="streak-calendar"
-                class="rd-streak-calendar"
-                aria-label="Kalender riwayat login"
-            >
-                <span>Memuat riwayat login...</span>
-            </div>
-
-            <div class="rd-streak-legend">
-                <span class="rd-streak-dot rd-streak-dot-off"></span>
-                Belum login
-                <span class="rd-streak-dot rd-streak-dot-on"></span>
-                Sudah login
-            </div>
-        </div>
-    </div>
-</article>
-
-    <!-- Badge Pencapaian -->
-        <article class="rd-stat rd-stat-blue">
-            <span class="rd-stat-icon">⭐</span>
-            <div class="rd-badge-content">
-                <strong id="dashboard-badge-count">0</strong>
-                <p>Lencana</p>
-
-                <div class="rd-progress">
-                    <i id="dashboard-badge-bar" style="width:0%"></i>
-                </div>
-
-                <button
-                    type="button"
-                    class="rd-achievement-button"
-                    onclick="showPage('achievements'); loadAchievements()"
-                >
-                    🏆 Lihat Semua Lencana <span aria-hidden="true">→</span>
-                </button>
-            </div>
-        </article>
-
-
-</section>
-
-
-
+            <article class="rd-stat rd-stat-green"><span class="rd-stat-icon">🎓</span><div><strong>75%</strong><p>Progress Kursus</p><div class="rd-progress"><i style="width:75%"></i></div></div></article>
+            <article class="rd-stat rd-stat-purple"><span class="rd-stat-icon">🗓️</span><div><strong>52</strong><p>Day Streak</p><div class="rd-progress"><i style="width:52%"></i></div></div></article>
+            <article class="rd-stat rd-stat-blue"><span class="rd-stat-icon">⭐</span><div><strong>52</strong><p>Lencana</p><div class="rd-progress"><i style="width:68%"></i></div></div></article>
+        </section>
         <div class="rd-section-heading"><div><p class="rd-eyebrow">JELAJAHI FITUR</p><h2>Kategori Belajar</h2></div><button type="button" onclick="showPage('pustaka')">Lihat Semua <span>→</span></button></div>
         <section class="rd-categories" aria-label="Kategori belajar">
             <button class="rd-category rd-pink" type="button" onclick="showPage('edubot')"><span class="rd-category-icon">🤖</span><span class="rd-category-copy"><strong>Edubot</strong><small>Asisten belajar pintar<br>untuk membantu kamu.</small></span><span class="rd-arrow">→</span></button>
@@ -366,38 +292,6 @@
 
 </section>
 
-<!-- HALAMAN LENCANA PENCAPAIAN -->
-<section id="achievements" class="screen feature-screen hidden">
-
-    <div class="feature-header">
-        <div class="back-button" onclick="showHome()">‹</div>
-        <h2>Lencana Pencapaian</h2>
-    </div>
-
-    <div class="feature-description">
-        Terus belajar, bertanya, dan membaca untuk membuka
-        lencana pencapaian EduMath.
-    </div>
-
-    <div class="achievement-overview">
-        <div class="achievement-overview-icon">🏆</div>
-        <div>
-            <strong>
-                <span id="achievement-unlocked-count">0</span>
-                /
-                <span id="achievement-total-count">16</span>
-            </strong>
-            <p>Lencana diperoleh</p>
-        </div>
-    </div>
-
-    <div id="achievement-list" aria-live="polite">
-        <p class="achievement-loading">
-            Memuat pencapaian...
-        </p>
-    </div>
-
-</section>
 
 <!-- KILAS BELAJAR PAGE -->
 <section id="kilas" class="screen feature-screen hidden">
@@ -955,7 +849,7 @@
     </section>
 <!-- TANYA AI CHAT PAGE -->
     <section id="tanya-ai" class="screen hidden">
-
+       
         <!-- HEADER CHAT -->
         <div class="chat-header">
             <div class="back-button" onclick="showPage('edubot')">‹</div>
@@ -966,77 +860,40 @@
                     <span class="status-online">Aktif & Online</span>
                 </div>
             </div>
-            <button
-    type="button"
-    class="chat-settings"
-    id="edubot-settings-button"
-    onclick="toggleEduBotSettingsMenu()"
-    aria-label="Pengaturan percakapan"
-    aria-expanded="false"
->
-    ⚙️
-</button>
+            <div class="chat-settings">⚙️</div>
         </div>
 
-<!-- MENU PENGATURAN EDUBOT -->
-<div id="edubot-settings-menu" class="edubot-settings-menu hidden">
-    <button type="button" onclick="clearEduBotMessages()">
-        🗑️ Hapus semua pesan
-    </button>
-
-    <button type="button" onclick="shareEduBotConversation()">
-        ↗️ Bagikan percakapan
-    </button>
-</div>
-    <!-- AREA PESAN / CHAT BODY -->
-    <div class="chat-body" id="edubot-messages" aria-live="polite">
-
-        <div class="chat-bubble-container bot">
-            <div class="bot-icon">🤖</div>
-            <div class="chat-bubble bot">
-                <h4>EduBot</h4>
-                <p>
-                    Halo! Kamu bisa mengirim pertanyaan lewat teks
-                    atau pesan suara. Respons AI akan tersedia
-                    setelah integrasi AI selesai.
-                </p>
-                <span class="chat-time">EduBot</span>
+        <!-- AREA PESAN / CHAT BODY -->
+        <div class="chat-body">
+           
+            <!-- PESAN DARI USER -->
+            <div class="chat-bubble user">
+                <p>EduBot, jelaskan apa perbedaan antara gaya magnet dan gaya gravitasi secara sederhana dong!</p>
+                <span class="chat-time">09:42</span>
             </div>
+
+            <!-- PESAN DARI BOT -->
+            <div class="chat-bubble-container bot">
+                <div class="bot-icon">🤖</div>
+                <div class="chat-bubble bot">
+                    <h4>EduBot</h4>
+                    <p>Tentu! Gini ya:</p>
+                    <ol>
+                        <li><b>Gaya Gravitasi</b> itu selalu menarik semua benda ke pusat bumi. Mirip seperti mangga jatuh dari pohonnya.</li>
+                        <li><b>Gaya Magnet</b> hanya bekerja pada benda logam tertentu (bisa tarik-menarik atau tolak-menolak).</li>
+                    </ol>
+                    <span class="chat-time">09:43</span>
+                </div>
+            </div>
+
         </div>
 
-    </div>
+        <!-- INPUT CHAT (BAR BAWAH) -->
+        <div class="chat-input-area">
+            <input type="text" placeholder="Ketik pertanyaanmu di sini...">
+            <button class="send-btn">➤</button>
+        </div>
 
-    <!-- INPUT CHAT -->
-    <form class="chat-input-area"
-        id="edubot-chat-form"
-        onsubmit="sendEduBotText(event)">
-
-        <input
-            type="text"
-            id="edubot-text-input"
-            placeholder="Ketik pertanyaanmu di sini..."
-            maxlength="2000"
-            autocomplete="off"
-            aria-label="Pesan untuk EduBot"
-        >
-
-        <button
-            type="button"
-            class="voice-btn"
-            id="edubot-record-btn"
-            onclick="toggleEduBotRecording()"
-            aria-label="Rekam pesan suara"
-            title="Rekam pesan suara"
-        >🎙️</button>
-
-        <button
-            type="submit"
-            class="send-btn"
-            aria-label="Kirim pesan"
-            title="Kirim pesan"
-        >➤</button>
-
-    </form>
     </section>
     <!-- JADWAL PAGE (PENJADWALAN KURSUS / DETAIL KURSUS) -->
     <section id="jadwal" class="screen feature-screen hidden">
@@ -1054,7 +911,7 @@
                     <h2>Detail Kursus</h2>
                 </div>
 
-                <div class="jd-course-card hidden">
+                <div class="jd-course-card">
                     <div class="jd-course-top">
                         <h3>Matematika Dasar Kelas 3</h3>
                         <span class="jd-count">12/16</span>
@@ -1071,7 +928,6 @@
 
         <div class="jd-body">
 
-            <div id="legacy-course-controls" hidden>
             <!-- DESKRIPSI -->
             <p class="jd-label">Deskripsi Pelajaran</p>
             <p class="jd-desc">
@@ -1148,37 +1004,6 @@
                 </div>
             </div>
 
-            </div>
-
-            <!-- JADWAL KHUSUS: tanggal, materi, durasi, dan pengingat email -->
-            <h3 class="jd-heading">Buat Jadwal Belajar</h3>
-            <div class="jd-card jd-extra-card">
-                <div class="jd-extra-grid">
-                    <label class="jd-extra-field">Tanggal dan jam mulai
-                        <input type="datetime-local" id="study-starts-at" required>
-                    </label>
-                    <label class="jd-extra-field">Semester
-                        <select id="study-semester"><option value="1">Semester 1 · Penjumlahan & Pengurangan</option><option value="2">Semester 2 · Perkalian & Pembagian</option></select>
-                    </label>
-                    <label class="jd-extra-field">Materi yang dipelajari
-                        <select id="study-material"><option>Penjumlahan</option><option>Pengurangan</option><option>Soal Cerita Penjumlahan dan Pengurangan</option></select>
-                    </label>
-                    <label class="jd-extra-field">Durasi belajar
-                        <select id="study-duration"><option value="15">15 menit</option><option value="30" selected>30 menit</option><option value="45">45 menit</option><option value="60">60 menit</option><option value="90">90 menit</option><option value="120">120 menit</option></select>
-                    </label>
-                    <label class="jd-extra-field">Email pengingat (Gmail atau email lain)
-                        <input type="email" id="study-reminder-email" placeholder="nama@gmail.com" required>
-                    </label>
-                    <label class="jd-extra-field">Kirim pengingat
-                        <select id="study-reminder-minutes"><option value="5">5 menit sebelumnya</option><option value="10">10 menit sebelumnya</option><option value="15" selected>15 menit sebelumnya</option><option value="30">30 menit sebelumnya</option><option value="60">1 jam sebelumnya</option></select>
-                    </label>
-                </div>
-                <button type="button" class="jd-change jd-save-study" id="study-schedule-save">Simpan Jadwal</button>
-                <p id="study-schedule-status" class="jd-desc" role="status" aria-live="polite"></p>
-            </div>
-            <h3 class="jd-heading">Jadwal Mendatang</h3>
-            <div class="jd-card" id="study-schedule-list"><p class="jd-desc">Jadwal yang disimpan akan muncul di sini setelah akun terhubung.</p></div>
-
             <!-- TOMBOL MULAI -->
             <button type="button" class="jd-start" onclick="showPage('detail-kursus')">MULAI</button>
 
@@ -1190,7 +1015,7 @@
     </section>
     <!-- DETAIL KURSUS PAGE -->
     <section id="detail-kursus" class="screen feature-screen hidden">
-
+        
         <!-- HEADER -->
         <div class="dk-header">
             <!-- Tombol back kembali ke halaman Kursus Saya (belajar-ai) -->
@@ -1199,12 +1024,12 @@
         </div>
 
         <div class="dk-content">
-
+            
             <!-- KARTU PROGRES BIRU -->
-            <div class="dk-progress-card">          
-            <div class="dk-circle-progress" id="kelas3-progress-circle" style="--progress: 0%;">
-                <span id="kelas3-progress-percent">0%</span>
-            </div>
+            <div class="dk-progress-card">
+                <div class="dk-circle-progress">
+                    <span>75%</span>
+                </div>
                 <div class="dk-progress-text">
                     <h3>Progres Belajar</h3>
                     <p id="kelas3-course-progress">Materi tersedia untuk dipelajari</p>
@@ -1215,6 +1040,7 @@
             <div class="dk-tabs">
                 <div class="dk-tab active">Materi</div>
                 <div class="dk-tab">Kuis</div>
+                <div class="dk-tab">Diskusi</div>
             </div>
 
             <!-- DAFTAR MATERI (BAB) -->
@@ -1226,7 +1052,7 @@
     </section>
     <!-- HALAMAN MATERI PAGE -->
     <section id="halaman-materi" class="screen feature-screen hidden">
-
+        
         <!-- HEADER -->
         <div class="hm-header">
             <div class="back-button" onclick="showPage('detail-kursus')">‹</div>
@@ -1234,7 +1060,7 @@
         </div>
 
         <div class="hm-content">
-
+            
             <!-- VIDEO PLACEHOLDER -->
             <div class="hm-video-box">
                 <div class="hm-play-btn">▶</div>
@@ -1261,7 +1087,7 @@
                     <li>Periksa kembali hasil pertambahan.</li>
                 </ul>
             </div>
-
+            
         </div>
 
         <!-- TOMBOL MULAI KUIS (BAR BAWAH) -->
@@ -1272,21 +1098,21 @@
     </section>
     <!-- HALAMAN KUIS PAGE -->
     <section id="halaman-kuis" class="screen feature-screen hidden">
-
+        
         <!-- HEADER -->
         <div class="hk-header">
             <div class="back-button" onclick="showPage('halaman-materi')">‹</div>
             <h2>Kuis Bab 3</h2>
             <span class="hk-progress-text">Soal 2 dari 5</span>
         </div>
-
+        
         <!-- PROGRESS BAR ATAS -->
         <div class="hk-progress-bar-container">
             <div class="hk-progress-bar-fill" style="width: 40%;"></div>
         </div>
 
         <div class="hk-content">
-
+            
             <!-- KARTU PERTANYAAN -->
             <div class="hk-question-card">
                 <span class="hk-question-label">PERTANYAAN</span>
@@ -1295,23 +1121,23 @@
 
             <!-- PILIHAN JAWABAN -->
             <div class="hk-options">
-
+                
                 <div class="hk-option">
                     <div class="hk-radio"></div>
                     <span>A. 90°</span>
                 </div>
-
+                
                 <!-- PILIHAN B: AKTIF/TERPILIH -->
                 <div class="hk-option active">
                     <div class="hk-radio"><div class="hk-radio-inner"></div></div>
                     <span>B. 180°</span>
                 </div>
-
+                
                 <div class="hk-option">
                     <div class="hk-radio"></div>
                     <span>C. 270°</span>
                 </div>
-
+                
                 <div class="hk-option">
                     <div class="hk-radio"></div>
                     <span>D. 360°</span>
@@ -1330,6 +1156,5 @@
 
     <script src="script.js"></script>
 
-    <script src="{{ asset('study-schedule.js') }}"></script>
 </body>
 </html>
