@@ -5,6 +5,7 @@ const EDU_RESTORABLE_PAGES = [
     "home",
     "edubot",
     "pustaka",
+    "achievements",
     "kilas",
     "guru",
     "notifications",
@@ -84,7 +85,9 @@ async function restoreEduMathAfterRefresh() {
         hideAllScreens();
 
         document.getElementById(pageId).classList.remove("hidden");
-
+        if (pageId === "home") {
+            loadDashboardStats();
+        }
         if (bottomNav) {
             bottomNav.classList.remove("hidden");
         }
@@ -206,6 +209,7 @@ async function login() {
 
         document.getElementById("login").classList.add("hidden");
         document.getElementById("home").classList.remove("hidden");
+        loadDashboardStats();
         sessionStorage.setItem(EDU_LAST_PAGE_KEY, "home");
 
         const bottomNav = document.getElementById("bottom-nav");
@@ -256,13 +260,16 @@ function showPage(pageId) {
     if (document.getElementById("halaman-kuis")) {
         document.getElementById("halaman-kuis").classList.add("hidden");
     }
-
+    if (document.getElementById("achievements")) {
+        document.getElementById("achievements").classList.add("hidden");
+    }
     document.getElementById(pageId).classList.remove("hidden");
     if (EDU_RESTORABLE_PAGES.includes(pageId)) {
     sessionStorage.setItem(EDU_LAST_PAGE_KEY, pageId);
 }
     if (pageId === 'detail-kursus') {
     loadKelas3Progress(kelas3SemesterAktif);
+    recordDashboardCourseVisit(kelas3SemesterAktif);
 }
 }
 
@@ -1504,5 +1511,336 @@ async function shareEduBotConversation() {
         console.error("Gagal membagikan percakapan:", error);
 
         window.prompt("Salin teks percakapan berikut:", text);
+    }
+}
+
+/* =========================================
+   DASHBOARD: PROGRESS, STREAK, DAN LENCANA
+   ========================================= */
+
+async function loadDashboardStats() {
+    try {
+        const response = await fetch('/dashboard/stats', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || 'Statistik dashboard gagal dimuat.'
+            );
+        }
+
+        const course = data.last_course || {};
+        const progress = Math.max(
+            0,
+            Math.min(100, Number(course.percent) || 0)
+        );
+
+        const streak = Math.max(0, Number(data.day_streak) || 0);
+        const badgeCount = Math.max(0, Number(data.badge_count) || 0);
+        const badgeTotal = Math.max(0, Number(data.badge_total) || 0);
+
+        // Progress kursus terakhir
+        const coursePercent = document.getElementById(
+            'dashboard-course-percent'
+        );
+        const courseName = document.getElementById(
+            'dashboard-course-name'
+        );
+        const courseBar = document.getElementById(
+            'dashboard-course-bar'
+        );
+
+        if (coursePercent) {
+            coursePercent.textContent = `${progress}%`;
+        }
+
+        if (courseName) {
+            courseName.textContent = course.name
+                ? `${course.name} · Semester ${course.semester}`
+                : 'Belum ada kursus dibuka';
+        }
+
+        if (courseBar) {
+            courseBar.style.width = `${progress}%`;
+        }
+
+        // Day Streak: kemajuan menuju target 7 hari.
+        const streakElement = document.getElementById(
+            'dashboard-day-streak'
+        );
+        const streakBar = document.getElementById(
+            'dashboard-streak-bar'
+        );
+
+        if (streakElement) {
+            streakElement.textContent = streak;
+        }
+
+        if (streakBar) {
+            streakBar.style.width =
+                `${Math.min(100, (streak / 7) * 100)}%`;
+        }
+
+        // Badge pencapaian
+        const badgeElement = document.getElementById(
+            'dashboard-badge-count'
+        );
+        const badgeBar = document.getElementById(
+            'dashboard-badge-bar'
+        );
+
+        if (badgeElement) {
+            badgeElement.textContent = badgeCount;
+        }
+
+        if (badgeBar) {
+            badgeBar.style.width = badgeTotal > 0
+                ? `${Math.min(100, (badgeCount / badgeTotal) * 100)}%`
+                : '0%';
+        }
+
+    } catch (error) {
+        console.error('Gagal memuat statistik EduMath:', error);
+    }
+}
+
+
+/* Catat aktivitas saat siswa membuka kursus. */
+async function recordDashboardCourseVisit(semester) {
+    const csrf = document.querySelector(
+        'meta[name="csrf-token"]'
+    );
+
+    if (!csrf) {
+        console.error('Token keamanan tidak ditemukan.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('course_key', 'matematika-kelas-3');
+    formData.append(
+        'semester',
+        String(Number(semester) === 2 ? 2 : 1)
+    );
+
+    try {
+        const response = await fetch('/dashboard/visit-course', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf.content
+            },
+            credentials: 'same-origin',
+            body: formData
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || 'Aktivitas belajar gagal dicatat.'
+            );
+        }
+
+        await loadDashboardStats();
+
+    } catch (error) {
+        console.error('Gagal mencatat aktivitas belajar:', error);
+    }
+}
+
+/* =========================================
+   EDUMATH: HALAMAN LENCANA PENCAPAIAN
+   ========================================= */
+
+async function loadAchievements() {
+    const list = document.getElementById("achievement-list");
+    const unlockedCount = document.getElementById(
+        "achievement-unlocked-count"
+    );
+    const totalCount = document.getElementById(
+        "achievement-total-count"
+    );
+
+    if (!list) {
+        console.error("Elemen achievement-list tidak ditemukan.");
+        return;
+    }
+
+    list.replaceChildren();
+
+    const loading = document.createElement("p");
+    loading.className = "achievement-loading";
+    loading.textContent = "Memuat lencana pencapaian...";
+    list.appendChild(loading);
+
+    try {
+        const response = await fetch("/achievements", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            },
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Gagal mengambil data lencana."
+            );
+        }
+
+        list.replaceChildren();
+
+        if (unlockedCount) {
+            unlockedCount.textContent =
+                Number(data.badge_count) || 0;
+        }
+
+        if (totalCount) {
+            totalCount.textContent =
+                Number(data.badge_total) || 16;
+        }
+
+        const categories = Array.isArray(data.categories)
+            ? data.categories
+            : [];
+
+        if (categories.length === 0) {
+            const empty = document.createElement("p");
+            empty.textContent = "Belum ada data lencana.";
+            list.appendChild(empty);
+            return;
+        }
+
+        categories.forEach(category => {
+            const section = document.createElement("section");
+            section.className = "achievement-category";
+
+            const header = document.createElement("div");
+            header.className = "achievement-category-header";
+
+            const title = document.createElement("h3");
+            title.textContent =
+                `${category.icon || "🏆"} ${category.title}`;
+
+            const summary = document.createElement("p");
+
+            if (category.key === "day_streak") {
+                summary.textContent =
+                    `${category.count} hari saat ini · ` +
+                    `Rekor ${category.record} hari`;
+            } else {
+                summary.textContent =
+                    `${category.count} ${category.unit || "pencapaian"}`;
+            }
+
+            header.append(title, summary);
+            section.appendChild(header);
+
+            const grid = document.createElement("div");
+            grid.className = "achievement-grid";
+
+            (category.badges || []).forEach(badge => {
+                const unlocked = badge.unlocked === true;
+
+                const card = document.createElement("article");
+                card.className =
+                    "achievement-badge " +
+                    (unlocked ? "unlocked" : "locked");
+
+                const icon = document.createElement("div");
+                icon.className = "achievement-badge-icon";
+                icon.textContent = unlocked
+                    ? (category.icon || "🏆")
+                    : "🔒";
+
+                const name = document.createElement("h4");
+                name.textContent = badge.name;
+
+                const threshold = Number(badge.threshold) || 0;
+                let targetText;
+
+                switch (category.key) {
+                    case "day_streak":
+                        targetText =
+                            `${threshold.toLocaleString("id-ID")} hari`;
+                        break;
+                    case "ask_ai":
+                        targetText =
+                            `${threshold.toLocaleString("id-ID")} pertanyaan`;
+                        break;
+                    case "study":
+                        targetText =
+                            `${threshold.toLocaleString("id-ID")} sesi belajar`;
+                        break;
+                    case "reading":
+                        targetText =
+                            `${threshold.toLocaleString("id-ID")} buku`;
+                        break;
+                    default:
+                        targetText = `Target ${threshold}`;
+                }
+
+                const target = document.createElement("p");
+                target.className = "achievement-target";
+                target.textContent = targetText;
+
+                const progress = Math.max(
+                    0,
+                    Math.min(100, Number(badge.progress) || 0)
+                );
+
+                const progressTrack = document.createElement("div");
+                progressTrack.className = "achievement-progress-track";
+
+                const progressBar = document.createElement("div");
+                progressBar.className = "achievement-progress-bar";
+                progressBar.style.width = `${progress}%`;
+
+                progressTrack.appendChild(progressBar);
+
+                const status = document.createElement("span");
+                status.className = "achievement-status";
+                status.textContent = unlocked
+                    ? "✓ Lencana diperoleh"
+                    : `${progress}% menuju target`;
+
+                card.append(
+                    icon,
+                    name,
+                    target,
+                    progressTrack,
+                    status
+                );
+
+                grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            list.appendChild(section);
+        });
+
+    } catch (error) {
+        console.error("Gagal memuat lencana:", error);
+
+        list.replaceChildren();
+
+        const errorMessage = document.createElement("p");
+        errorMessage.className = "achievement-error";
+        errorMessage.textContent =
+            "Lencana belum dapat dimuat. Pastikan Anda login dan coba lagi.";
+
+        list.appendChild(errorMessage);
     }
 }

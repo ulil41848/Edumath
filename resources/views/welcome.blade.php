@@ -170,11 +170,60 @@
             </div>
             <div class="rd-hero-art" aria-hidden="true"><span class="rd-equation">a² + b² = c²</span><div class="rd-book">📚</div><div class="rd-bulb">💡</div><div class="rd-mascot">🧑🏻‍🎓</div></div>
         </section>
+
         <section class="rd-stats" aria-label="Statistik belajar">
-            <article class="rd-stat rd-stat-green"><span class="rd-stat-icon">🎓</span><div><strong>75%</strong><p>Progress Kursus</p><div class="rd-progress"><i style="width:75%"></i></div></div></article>
-            <article class="rd-stat rd-stat-purple"><span class="rd-stat-icon">🗓️</span><div><strong>52</strong><p>Day Streak</p><div class="rd-progress"><i style="width:52%"></i></div></div></article>
-            <article class="rd-stat rd-stat-blue"><span class="rd-stat-icon">⭐</span><div><strong>52</strong><p>Lencana</p><div class="rd-progress"><i style="width:68%"></i></div></div></article>
-        </section>
+
+        <!-- Progress Kursus Terakhir -->
+    <article class="rd-stat rd-stat-green">
+        <span class="rd-stat-icon">🎓</span>
+        <div>
+            <strong id="dashboard-course-percent">0%</strong>
+            <p>Progress Kursus Terakhir</p>
+            <small id="dashboard-course-name">Belum ada kursus dibuka</small>
+            <div class="rd-progress">
+                <i id="dashboard-course-bar" style="width:0%"></i>
+            </div>
+        </div>
+    </article>
+
+    <!-- Day Streak -->
+    <article class="rd-stat rd-stat-purple">
+        <span class="rd-stat-icon">🗓️</span>
+        <div>
+            <strong id="dashboard-day-streak">0</strong>
+            <p>Day Streak</p>
+            <div class="rd-progress">
+                <i id="dashboard-streak-bar" style="width:0%"></i>
+            </div>
+        </div>
+    </article>
+
+    <!-- Badge Pencapaian -->
+        <article class="rd-stat rd-stat-blue">
+            <span class="rd-stat-icon">⭐</span>
+            <div class="rd-badge-content">
+                <strong id="dashboard-badge-count">0</strong>
+                <p>Lencana</p>
+
+                <div class="rd-progress">
+                    <i id="dashboard-badge-bar" style="width:0%"></i>
+                </div>
+
+                <button
+                    type="button"
+                    class="rd-achievement-button"
+                    onclick="showPage('achievements'); loadAchievements()"
+                >
+                    🏆 Lihat Semua Lencana <span aria-hidden="true">→</span>
+                </button>
+            </div>
+        </article>
+
+
+</section>
+
+
+
         <div class="rd-section-heading"><div><p class="rd-eyebrow">JELAJAHI FITUR</p><h2>Kategori Belajar</h2></div><button type="button" onclick="showPage('pustaka')">Lihat Semua <span>→</span></button></div>
         <section class="rd-categories" aria-label="Kategori belajar">
             <button class="rd-category rd-pink" type="button" onclick="showPage('edubot')"><span class="rd-category-icon">🤖</span><span class="rd-category-copy"><strong>Edubot</strong><small>Asisten belajar pintar<br>untuk membantu kamu.</small></span><span class="rd-arrow">→</span></button>
@@ -291,6 +340,38 @@
 
 </section>
 
+<!-- HALAMAN LENCANA PENCAPAIAN -->
+<section id="achievements" class="screen feature-screen hidden">
+
+    <div class="feature-header">
+        <div class="back-button" onclick="showHome()">‹</div>
+        <h2>Lencana Pencapaian</h2>
+    </div>
+
+    <div class="feature-description">
+        Terus belajar, bertanya, dan membaca untuk membuka
+        lencana pencapaian EduMath.
+    </div>
+
+    <div class="achievement-overview">
+        <div class="achievement-overview-icon">🏆</div>
+        <div>
+            <strong>
+                <span id="achievement-unlocked-count">0</span>
+                /
+                <span id="achievement-total-count">16</span>
+            </strong>
+            <p>Lencana diperoleh</p>
+        </div>
+    </div>
+
+    <div id="achievement-list" aria-live="polite">
+        <p class="achievement-loading">
+            Memuat pencapaian...
+        </p>
+    </div>
+
+</section>
 
 <!-- KILAS BELAJAR PAGE -->
 <section id="kilas" class="screen feature-screen hidden">
@@ -1094,7 +1175,7 @@
         <div class="dk-content">
 
             <!-- KARTU PROGRES BIRU -->
-            <div class="dk-progress-card">          
+            <div class="dk-progress-card">
             <div class="dk-circle-progress" id="kelas3-progress-circle" style="--progress: 0%;">
                 <span id="kelas3-progress-percent">0%</span>
             </div>

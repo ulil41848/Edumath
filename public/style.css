@@ -2131,3 +2131,210 @@ body:has(.redesign-home:not(.hidden)){overflow:auto;background:#f5f9ff;color:#17
 .edubot-settings-menu button:first-child {
     color: #dc2626;
 }
+
+/* =========================================
+   EDUMATH: DESAIN LENCANA PENCAPAIAN
+   ========================================= */
+
+#achievements {
+    padding-bottom: 28px;
+}
+
+.achievement-overview {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0 24px;
+    padding: 18px;
+    background: linear-gradient(135deg, #e6f8ff, #f1ecff);
+    border: 1px solid #dceefa;
+    border-radius: 18px;
+}
+
+.achievement-overview-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-radius: 16px;
+    font-size: 30px;
+}
+
+.achievement-overview strong {
+    color: #172b4d;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.achievement-overview p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.achievement-category {
+    margin: 24px 0;
+}
+
+.achievement-category-header {
+    margin-bottom: 12px;
+}
+
+.achievement-category-header h3 {
+    margin: 0 0 5px;
+    color: #19324d;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.achievement-category-header p {
+    margin: 0;
+    color: #718096;
+    font-size: 12px;
+}
+
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.achievement-badge {
+    min-width: 0;
+    padding: 15px 10px;
+    border: 1px solid #e3eaf1;
+    border-radius: 16px;
+    background: #ffffff;
+    text-align: center;
+    overflow-wrap: anywhere;
+    transition: transform 0.2s ease;
+}
+
+.achievement-badge.unlocked {
+    background: linear-gradient(160deg, #fffdf3, #ffffff);
+    border-color: #f1d88a;
+}
+
+.achievement-badge.locked {
+    background: #f7f9fc;
+    border-color: #e7ecf2;
+}
+
+.achievement-badge-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: #eef6ff;
+    font-size: 29px;
+}
+
+.achievement-badge.unlocked .achievement-badge-icon {
+    background: #fff0c2;
+}
+
+.achievement-badge.locked .achievement-badge-icon {
+    background: #e9edf3;
+}
+
+.achievement-badge h4 {
+    margin: 0 0 6px;
+    color: #23364d;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.achievement-target {
+    min-height: 30px;
+    margin: 0 0 12px;
+    color: #718096;
+    font-size: 11px;
+}
+
+.achievement-progress-track {
+    width: 100%;
+    height: 6px;
+    margin: 8px 0;
+    overflow: hidden;
+    background: #e8edf3;
+    border-radius: 20px;
+}
+
+.achievement-progress-bar {
+    height: 100%;
+    background: #08b8e8;
+    border-radius: inherit;
+    transition: width 0.35s ease;
+}
+
+.achievement-badge.unlocked .achievement-progress-bar {
+    background: #22a06b;
+}
+
+.achievement-status {
+    display: block;
+    margin-top: 8px;
+    color: #78869a;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.achievement-badge.unlocked .achievement-status {
+    color: #198754;
+    font-weight: 700;
+}
+
+.achievement-loading,
+.achievement-error {
+    padding: 18px;
+    color: #64748b;
+    font-size: 13px;
+    text-align: center;
+}
+
+@media (max-width: 350px) {
+    .achievement-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tombol lencana di dalam kartu dashboard */
+.rd-badge-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.rd-achievement-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1676d2;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.06);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.rd-achievement-button:hover {
+    background: #f0f7ff;
+    transform: translateY(-1px);
+}
+
+.rd-achievement-button:focus-visible {
+    outline: 2px solid #1676d2;
+    outline-offset: 3px;
+}

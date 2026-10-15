@@ -40,3 +40,37 @@ Route::middleware('auth')->prefix('learning-progress')->group(function () {
         'update',
     ])->name('learning-progress.update');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard/stats', [
+        \App\Http\Controllers\DashboardStatsController::class,
+        'show',
+    ])->name('dashboard.stats');
+
+    Route::post('/dashboard/visit-course', [
+        \App\Http\Controllers\DashboardStatsController::class,
+        'visitCourse',
+    ])->name('dashboard.visit-course');
+});
+
+Route::middleware('auth')->prefix('achievements')->group(function () {
+    Route::get('/', [
+        \App\Http\Controllers\AchievementController::class,
+        'index',
+    ])->name('achievements.index');
+
+    Route::post('/ai-question', [
+        \App\Http\Controllers\AchievementController::class,
+        'recordAiQuestion',
+    ])->name('achievements.ai-question');
+
+    Route::post('/study-session', [
+        \App\Http\Controllers\AchievementController::class,
+        'recordStudySession',
+    ])->name('achievements.study-session');
+
+    Route::post('/book-read', [
+        \App\Http\Controllers\AchievementController::class,
+        'recordBookRead',
+    ])->name('achievements.book-read');
+});
