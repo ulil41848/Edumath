@@ -170,9 +170,9 @@
             </div>
             <div class="rd-hero-art" aria-hidden="true"><span class="rd-equation">a² + b² = c²</span><div class="rd-book">📚</div><div class="rd-bulb">💡</div><div class="rd-mascot">🧑🏻‍🎓</div></div>
         </section>
-
+        
         <section class="rd-stats" aria-label="Statistik belajar">
-
+            
         <!-- Progress Kursus Terakhir -->
     <article class="rd-stat rd-stat-green">
         <span class="rd-stat-icon">🎓</span>
@@ -186,17 +186,43 @@
         </div>
     </article>
 
-    <!-- Day Streak -->
-    <article class="rd-stat rd-stat-purple">
-        <span class="rd-stat-icon">🗓️</span>
-        <div>
-            <strong id="dashboard-day-streak">0</strong>
-            <p>Day Streak</p>
-            <div class="rd-progress">
-                <i id="dashboard-streak-bar" style="width:0%"></i>
+<!-- Day Streak -->
+<article class="rd-stat rd-stat-purple rd-streak-card">
+    <span class="rd-stat-icon">🗓️</span>
+
+    <div class="rd-streak-content">
+        <strong id="dashboard-day-streak">0</strong>
+        <p>Day Streak</p>
+
+        <div class="rd-progress">
+            <i id="dashboard-streak-bar" style="width: 0%"></i>
+        </div>
+
+        <div class="rd-streak-history">
+            <div class="rd-streak-history-header">
+                <strong>Riwayat Login</strong>
+                <span id="streak-total-days">0 hari</span>
+            </div>
+
+            <p class="rd-streak-subtitle">Aktivitas 28 hari terakhir</p>
+
+            <div
+                id="streak-calendar"
+                class="rd-streak-calendar"
+                aria-label="Kalender riwayat login"
+            >
+                <span>Memuat riwayat login...</span>
+            </div>
+
+            <div class="rd-streak-legend">
+                <span class="rd-streak-dot rd-streak-dot-off"></span>
+                Belum login
+                <span class="rd-streak-dot rd-streak-dot-on"></span>
+                Sudah login
             </div>
         </div>
-    </article>
+    </div>
+</article>
 
     <!-- Badge Pencapaian -->
         <article class="rd-stat rd-stat-blue">
@@ -1175,7 +1201,7 @@
         <div class="dk-content">
 
             <!-- KARTU PROGRES BIRU -->
-            <div class="dk-progress-card">
+            <div class="dk-progress-card">          
             <div class="dk-circle-progress" id="kelas3-progress-circle" style="--progress: 0%;">
                 <span id="kelas3-progress-percent">0%</span>
             </div>

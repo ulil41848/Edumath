@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\EmailOtpController;
 use App\Http\Controllers\CourseStudyScheduleController;
+use App\Http\Controllers\DayStreakController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,7 +41,10 @@ Route::middleware('auth')->prefix('learning-progress')->group(function () {
         'update',
     ])->name('learning-progress.update');
 });
-
+Route::middleware('auth')->get(
+    '/day-streak/history',
+    [DayStreakController::class, 'history']
+)->name('day-streak.history');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard/stats', [
         \App\Http\Controllers\DashboardStatsController::class,

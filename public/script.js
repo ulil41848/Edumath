@@ -1844,3 +1844,81 @@ async function loadAchievements() {
         list.appendChild(errorMessage);
     }
 }
+
+async function loadDayStreakHistory() {
+    const calendar = document.getElementById('streak-calendar');
+    const totalDaysElement = document.getElementById('streak-total-days');
+
+    if (!calendar) return;
+
+    try {
+        const response = await fetch('/day-streak/history', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Gunakan streak dari statistik dashboard yang sudah ada.
+        const streakElement = document.getElementById(
+            'dashboard-day-streak'
+        );
+        const streakBar = document.getElementById(
+            'dashboard-streak-bar'
+        );
+
+        if (streakElement) {
+            streakElement.textContent = data.current_streak;
+        }
+
+        if (streakBar) {
+            streakBar.style.width =
+                `${Math.min(100, (data.current_streak / 7) * 100)}%`;
+        }
+
+        if (totalDaysElement) {
+            totalDaysElement.textContent =
+                `${data.total_login_days} hari login`;
+        }
+
+        calendar.replaceChildren();
+
+        data.calendar.forEach(day => {
+            const cell = document.createElement('div');
+            cell.className = 'rd-streak-day';
+
+            if (day.logged_in) {
+                cell.classList.add('is-logged');
+            }
+
+            if (day.is_today) {
+                cell.classList.add('is-today');
+            }
+
+            cell.title = `${day.date}: ${
+                day.logged_in ? 'Sudah login' : 'Belum login'
+            }`;
+
+            const number = document.createElement('span');
+            number.className = 'rd-streak-day-number';
+            number.textContent = day.day_number;
+
+            const label = document.createElement('span');
+            label.className = 'rd-streak-day-label';
+            label.textContent = day.day;
+
+            cell.append(number, label);
+            calendar.appendChild(cell);
+        });
+    } catch (error) {
+        console.error('Gagal memuat riwayat login:', error);
+        calendar.textContent = 'Riwayat login belum dapat dimuat.';
+    }
+}
