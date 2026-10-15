@@ -2338,3 +2338,60 @@ body:has(.redesign-home:not(.hidden)){overflow:auto;background:#f5f9ff;color:#17
     outline: 2px solid #1676d2;
     outline-offset: 3px;
 }
+
+.rd-streak-history {
+    width: 100%;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.rd-streak-history > strong {
+    color: #fff;
+    font-size: 14px;
+}
+
+#streak-total-days {
+    margin: 5px 0 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+}
+
+.rd-streak-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.rd-streak-day {
+    display: flex;
+    aspect-ratio: 1;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 10px;
+}
+
+.rd-streak-day.is-logged {
+    background: #b9f6ca;
+    color: #215d3a;
+}
+
+.rd-streak-day.is-today {
+    outline: 2px solid #fff;
+    outline-offset: 1px;
+}
+
+.rd-streak-day-number {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.rd-streak-day-label {
+    margin-top: 2px;
+    font-size: 9px;
+}

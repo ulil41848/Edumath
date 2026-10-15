@@ -1922,3 +1922,5 @@ async function loadDayStreakHistory() {
         calendar.textContent = 'Riwayat login belum dapat dimuat.';
     }
 }
+
+document.addEventListener('DOMContentLoaded', loadDayStreakHistory);

@@ -865,27 +865,7 @@
 
         <!-- AREA PESAN / CHAT BODY -->
         <div class="chat-body">
-           
-            <!-- PESAN DARI USER -->
-            <div class="chat-bubble user">
-                <p>EduBot, jelaskan apa perbedaan antara gaya magnet dan gaya gravitasi secara sederhana dong!</p>
-                <span class="chat-time">09:42</span>
-            </div>
-
-            <!-- PESAN DARI BOT -->
-            <div class="chat-bubble-container bot">
-                <div class="bot-icon">🤖</div>
-                <div class="chat-bubble bot">
-                    <h4>EduBot</h4>
-                    <p>Tentu! Gini ya:</p>
-                    <ol>
-                        <li><b>Gaya Gravitasi</b> itu selalu menarik semua benda ke pusat bumi. Mirip seperti mangga jatuh dari pohonnya.</li>
-                        <li><b>Gaya Magnet</b> hanya bekerja pada benda logam tertentu (bisa tarik-menarik atau tolak-menolak).</li>
-                    </ol>
-                    <span class="chat-time">09:43</span>
-                </div>
-            </div>
-
+            <!-- Pesan dibuat otomatis oleh script -->
         </div>
 
         <!-- INPUT CHAT (BAR BAWAH) -->
@@ -1092,7 +1072,7 @@
 
         <!-- TOMBOL MULAI KUIS (BAR BAWAH) -->
         <div class="hm-bottom-bar">
-            <button class="hm-btn-primary" onclick="showPage('halaman-kuis')">Mulai Kuis ➔</button>
+            <button class="hm-btn-primary" onclick="showPage('halaman-kuis'); startKuis();">Mulai Kuis ➔</button>
         </div>
 
     </section>
@@ -1102,59 +1082,588 @@
         <!-- HEADER -->
         <div class="hk-header">
             <div class="back-button" onclick="showPage('halaman-materi')">‹</div>
-            <h2>Kuis Bab 3</h2>
-            <span class="hk-progress-text">Soal 2 dari 5</span>
+            <h2>Kuis Matematika</h2>
+            <span class="hk-progress-text">Soal 1 dari 10</span>
         </div>
         
         <!-- PROGRESS BAR ATAS -->
         <div class="hk-progress-bar-container">
-            <div class="hk-progress-bar-fill" style="width: 40%;"></div>
+            <div class="hk-progress-bar-fill" style="width: 0%;"></div>
         </div>
 
         <div class="hk-content">
-            
-            <!-- KARTU PERTANYAAN -->
-            <div class="hk-question-card">
-                <span class="hk-question-label">PERTANYAAN</span>
-                <h3>Berapakah jumlah sudut dalam segitiga?</h3>
-            </div>
-
-            <!-- PILIHAN JAWABAN -->
-            <div class="hk-options">
-                
-                <div class="hk-option">
-                    <div class="hk-radio"></div>
-                    <span>A. 90°</span>
-                </div>
-                
-                <!-- PILIHAN B: AKTIF/TERPILIH -->
-                <div class="hk-option active">
-                    <div class="hk-radio"><div class="hk-radio-inner"></div></div>
-                    <span>B. 180°</span>
-                </div>
-                
-                <div class="hk-option">
-                    <div class="hk-radio"></div>
-                    <span>C. 270°</span>
-                </div>
-                
-                <div class="hk-option">
-                    <div class="hk-radio"></div>
-                    <span>D. 360°</span>
-                </div>
-
-            </div>
-
+            <!-- Isi soal dibuat otomatis oleh script -->
         </div>
 
         <!-- TOMBOL SELANJUTNYA (BAR BAWAH) -->
         <div class="hk-bottom-bar">
-            <button class="hk-btn-primary">Selanjutnya ➔</button>
+            <button class="hk-btn-primary" type="button">Jawab</button>
         </div>
 
     </section>
 
     <script src="script.js"></script>
+
+    <script>
+    // ===== EDUBOT: bot memberi soal (pilihan ganda / essai), siswa menjawab =====
+    (function () {
+        var section = document.getElementById('tanya-ai');
+        if (!section) return;
+
+        var body = section.querySelector('.chat-body');
+        var inputArea = section.querySelector('.chat-input-area');
+        var input = inputArea.querySelector('input');
+        var sendBtn = inputArea.querySelector('.send-btn');
+        var token = document.querySelector('meta[name="csrf-token"]').content;
+        var urlStart = "{{ url('/kuis/mulai') }}";
+        var urlAnswer = "{{ url('/kuis/jawab') }}";
+        var LETTERS = ['A', 'B', 'C', 'D'];
+
+        var pending = null; // soal yang sedang menunggu jawaban
+        var busy = false;
+
+        function now() {
+            var d = new Date();
+            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        }
+
+        function scrollDown() {
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function post(url, payload) {
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify(payload || {})
+            }).then(function (res) {
+                return res.json().then(function (data) {
+                    return { ok: res.ok, data: data };
+                });
+            });
+        }
+
+        function addUser(text) {
+            var bubble = document.createElement('div');
+            bubble.className = 'chat-bubble user';
+            var p = document.createElement('p');
+            p.textContent = text;
+            var t = document.createElement('span');
+            t.className = 'chat-time';
+            t.textContent = now();
+            bubble.appendChild(p);
+            bubble.appendChild(t);
+            body.appendChild(bubble);
+            scrollDown();
+        }
+
+        function addBot(lines) {
+            var box = document.createElement('div');
+            box.className = 'chat-bubble-container bot';
+            var icon = document.createElement('div');
+            icon.className = 'bot-icon';
+            icon.textContent = '🤖';
+            var bubble = document.createElement('div');
+            bubble.className = 'chat-bubble bot';
+            var h = document.createElement('h4');
+            h.textContent = 'EduBot';
+            bubble.appendChild(h);
+            lines.forEach(function (line) {
+                var p = document.createElement('p');
+                p.textContent = line;
+                bubble.appendChild(p);
+            });
+            var t = document.createElement('span');
+            t.className = 'chat-time';
+            t.textContent = now();
+            bubble.appendChild(t);
+            box.appendChild(icon);
+            box.appendChild(bubble);
+            body.appendChild(box);
+            scrollDown();
+            return { box: box, bubble: bubble };
+        }
+
+        function setPlaceholder() {
+            if (!pending) input.placeholder = 'Pilih jenis soal dulu ya...';
+            else if (pending.type === 'essay') input.placeholder = 'Ketik jawabanmu di sini...';
+            else input.placeholder = 'Tekan pilihan jawaban, atau ketik A, B, C, D';
+        }
+
+        // Tombol pilihan jenis soal (selalu tampil di atas kotak ketik)
+        var quick = document.createElement('div');
+        quick.style.cssText = 'display:flex;gap:8px;padding:8px 12px;flex-wrap:wrap;';
+        [['📝 Soal Pilihan Ganda', 'choice'], ['✍️ Soal Essai', 'essay']].forEach(function (item) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = item[0];
+            b.style.cssText = 'border:1px solid #2563eb;background:#eff6ff;color:#2563eb;border-radius:999px;' +
+                'padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;';
+            b.addEventListener('click', function () { askQuestion(item[1]); });
+            quick.appendChild(b);
+        });
+        inputArea.parentNode.insertBefore(quick, inputArea);
+
+        async function askQuestion(type) {
+            if (busy) return;
+            busy = true;
+            pending = null;
+            setPlaceholder();
+
+            addUser(type === 'choice' ? 'Beri aku soal pilihan ganda' : 'Beri aku soal essai');
+            var loading = addBot(['Sebentar ya, aku buatkan soalnya...']);
+
+            try {
+                var r = await post(urlStart, { type: type, count: 1, context: 'chat' });
+                loading.box.remove();
+
+                if (!r.ok || !r.data.questions || !r.data.questions.length) {
+                    addBot([r.data.message || 'Maaf, soal belum bisa dibuat. Coba lagi ya.']);
+                } else {
+                    showQuestion(type, r.data.questions[0]);
+                }
+            } catch (e) {
+                loading.box.remove();
+                addBot(['Maaf, aku tidak bisa terhubung ke server. Coba lagi ya.']);
+            }
+            busy = false;
+        }
+
+        function showQuestion(type, q) {
+            var title = type === 'choice' ? 'Soal pilihan ganda:' : 'Soal essai:';
+            var b = addBot([title, q.question]);
+            b.bubble.querySelectorAll('p')[1].style.fontWeight = '700';
+
+            pending = { type: type, q: q, locked: false, buttons: [] };
+
+            if (type === 'choice') {
+                var wrap = document.createElement('div');
+                wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;margin-top:8px;';
+                q.choices.forEach(function (choice, i) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = LETTERS[i] + '. ' + choice;
+                    btn.style.cssText = 'text-align:left;border:1px solid #dbe5f4;background:#fff;color:#172554;' +
+                        'border-radius:10px;padding:10px 12px;font:inherit;cursor:pointer;';
+                    btn.addEventListener('click', function () {
+                        submitAnswer(choice, LETTERS[i] + '. ' + choice);
+                    });
+                    wrap.appendChild(btn);
+                    pending.buttons.push({ el: btn, value: choice });
+                });
+                b.bubble.insertBefore(wrap, b.bubble.querySelector('.chat-time'));
+            } else {
+                var hint = document.createElement('p');
+                hint.textContent = 'Ketik jawabanmu di kotak bawah, lalu kirim ➤';
+                b.bubble.insertBefore(hint, b.bubble.querySelector('.chat-time'));
+            }
+
+            setPlaceholder();
+            input.focus();
+        }
+
+        async function submitAnswer(value, display) {
+            if (!pending || pending.locked || busy) return;
+            var current = pending;
+            current.locked = true;
+            busy = true;
+
+            addUser(display);
+
+            try {
+                var r = await post(urlAnswer, { context: 'chat', index: 0, choice: value });
+
+                if (!r.ok) {
+                    pending = null;
+                    setPlaceholder();
+                    addBot([r.data.message || 'Maaf, terjadi kesalahan. Minta soal baru ya.']);
+                } else {
+                    var res = r.data;
+                    current.buttons.forEach(function (item) {
+                        item.el.disabled = true;
+                        if (item.value === res.answer) {
+                            item.el.style.background = '#dcfce7';
+                            item.el.style.borderColor = '#16a34a';
+                        } else if (item.value === value) {
+                            item.el.style.background = '#fee2e2';
+                            item.el.style.borderColor = '#dc2626';
+                        }
+                    });
+
+                    var lines = [];
+                    lines.push(res.correct ? 'Benar! 🎉' : 'Belum tepat. Jawaban yang benar: ' + res.answer);
+                    lines.push(res.explanation);
+                    lines.push('Mau lanjut? Pilih jenis soal di bawah ya 👇');
+                    addBot(lines);
+
+                    pending = null;
+                    setPlaceholder();
+                }
+            } catch (e) {
+                current.locked = false;
+                addBot(['Maaf, aku tidak bisa terhubung ke server. Coba kirim jawabanmu lagi ya.']);
+            }
+            busy = false;
+        }
+
+        function send() {
+            var text = input.value.trim();
+            if (!text || busy) return;
+            input.value = '';
+
+            if (!pending) {
+                addUser(text);
+                addBot(['Pilih dulu jenis soalnya ya: Pilihan Ganda atau Essai 👇']);
+                return;
+            }
+
+            if (pending.type === 'choice') {
+                var idx = LETTERS.indexOf(text.toUpperCase());
+                if (idx === -1 || idx >= pending.q.choices.length) {
+                    addUser(text);
+                    addBot(['Tekan salah satu pilihan jawaban, atau ketik A, B, C, atau D.']);
+                    return;
+                }
+                var chosen = pending.q.choices[idx];
+                submitAnswer(chosen, LETTERS[idx] + '. ' + chosen);
+            } else {
+                submitAnswer(text, text);
+            }
+        }
+
+        sendBtn.addEventListener('click', send);
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); send(); }
+        });
+
+        // Sapaan awal
+        addBot([
+            'Halo! Aku EduBot 🤖 Aku akan memberimu soal matematika.',
+            'Pilih jenis soalnya di bawah ini (Pilihan Ganda atau Essai), lalu jawab ya!'
+        ]);
+        setPlaceholder();
+    })();
+    </script>
+
+
+    <script>
+    // ===== KUIS: soal dibuat oleh backend (pilihan ganda / essai), siswa yang menjawab =====
+    (function () {
+        var section = document.getElementById('halaman-kuis');
+        if (!section) return;
+
+        var token = document.querySelector('meta[name="csrf-token"]').content;
+        var urlStart = "{{ url('/kuis/mulai') }}";
+        var urlAnswer = "{{ url('/kuis/jawab') }}";
+
+        var titleEl = section.querySelector('.hk-header h2');
+        var progressText = section.querySelector('.hk-progress-text');
+        var fill = section.querySelector('.hk-progress-bar-fill');
+        var content = section.querySelector('.hk-content');
+        var button = section.querySelector('.hk-btn-primary');
+        var LETTERS = ['A', 'B', 'C', 'D'];
+
+        var state = { type: null, questions: [], index: 0, score: 0, selected: null, mode: 'idle' };
+
+        function clear(el) {
+            while (el.firstChild) el.removeChild(el.firstChild);
+        }
+
+        function post(url, payload) {
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify(payload || {})
+            }).then(function (res) {
+                return res.json().then(function (data) {
+                    return { ok: res.ok, data: data };
+                });
+            });
+        }
+
+        function setButton(label, mode, disabled) {
+            button.style.display = '';
+            button.textContent = label;
+            state.mode = mode;
+            button.disabled = !!disabled;
+            button.style.opacity = disabled ? '0.5' : '1';
+        }
+
+        function hideButton() {
+            button.style.display = 'none';
+        }
+
+        function showMessage(text) {
+            clear(content);
+            var box = document.createElement('div');
+            box.className = 'hk-question-card';
+            var h = document.createElement('h3');
+            h.textContent = text;
+            box.appendChild(h);
+            content.appendChild(box);
+        }
+
+        // ---------- Pilih jenis soal ----------
+        function showChooser() {
+            state = { type: null, questions: [], index: 0, score: 0, selected: null, mode: 'chooser' };
+            titleEl.textContent = 'Kuis Matematika';
+            progressText.textContent = 'Pilih jenis soal';
+            fill.style.width = '0%';
+            clear(content);
+
+            var card = document.createElement('div');
+            card.className = 'hk-question-card';
+            var label = document.createElement('span');
+            label.className = 'hk-question-label';
+            label.textContent = 'MULAI KUIS';
+            var h = document.createElement('h3');
+            h.textContent = 'Kamu mau mengerjakan soal apa?';
+            card.appendChild(label);
+            card.appendChild(h);
+            content.appendChild(card);
+
+            var options = document.createElement('div');
+            options.className = 'hk-options';
+            [
+                ['📝 Pilihan Ganda — pilih jawaban A sampai D', 'choice'],
+                ['✍️ Essai — ketik jawabanmu sendiri', 'essay']
+            ].forEach(function (item) {
+                var opt = document.createElement('div');
+                opt.className = 'hk-option';
+                opt.style.cursor = 'pointer';
+                var span = document.createElement('span');
+                span.textContent = item[0];
+                opt.appendChild(span);
+                opt.addEventListener('click', function () { loadQuiz(item[1]); });
+                options.appendChild(opt);
+            });
+            content.appendChild(options);
+
+            hideButton();
+        }
+        window.startKuis = showChooser;
+
+        // ---------- Ambil 10 soal dari backend ----------
+        async function loadQuiz(type) {
+            state = { type: type, questions: [], index: 0, score: 0, selected: null, mode: 'loading' };
+            progressText.textContent = 'Menyiapkan soal...';
+            fill.style.width = '0%';
+            showMessage('Sedang membuat soal untukmu...');
+            hideButton();
+
+            try {
+                var r = await post(urlStart, { type: type, count: 10, context: 'kuis' });
+                if (!r.ok || !r.data.questions || !r.data.questions.length) {
+                    showMessage(r.data.message || 'Soal gagal dibuat. Coba lagi ya.');
+                    setButton('Pilih Jenis Soal', 'chooser', false);
+                    return;
+                }
+                state.questions = r.data.questions;
+                renderQuestion();
+            } catch (e) {
+                showMessage('Tidak bisa terhubung ke server. Coba lagi ya.');
+                setButton('Pilih Jenis Soal', 'chooser', false);
+            }
+        }
+
+        // ---------- Tampilkan satu soal ----------
+        function renderQuestion() {
+            var total = state.questions.length;
+            var q = state.questions[state.index];
+            state.selected = null;
+
+            progressText.textContent = 'Soal ' + (state.index + 1) + ' dari ' + total;
+            fill.style.width = ((state.index + 1) / total * 100) + '%';
+
+            clear(content);
+
+            var card = document.createElement('div');
+            card.className = 'hk-question-card';
+            var label = document.createElement('span');
+            label.className = 'hk-question-label';
+            label.textContent = state.type === 'essay' ? 'SOAL ESSAI' : 'PERTANYAAN';
+            var h = document.createElement('h3');
+            h.textContent = q.question;
+            card.appendChild(label);
+            card.appendChild(h);
+            content.appendChild(card);
+
+            if (state.type === 'essay') {
+                var wrap = document.createElement('div');
+                wrap.style.cssText = 'margin-top:16px;';
+                var field = document.createElement('input');
+                field.type = 'text';
+                field.id = 'kuis-essay';
+                field.autocomplete = 'off';
+                field.placeholder = 'Ketik jawabanmu di sini';
+                field.style.cssText = 'width:100%;box-sizing:border-box;padding:14px;font-size:16px;' +
+                    'border:1px solid #dbe5f4;border-radius:12px;';
+                field.addEventListener('input', function () {
+                    if (state.mode === 'answer') setButton('Jawab', 'answer', field.value.trim() === '');
+                });
+                field.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && state.mode === 'answer' && !button.disabled) {
+                        e.preventDefault();
+                        checkAnswer();
+                    }
+                });
+                wrap.appendChild(field);
+                content.appendChild(wrap);
+            } else {
+                var options = document.createElement('div');
+                options.className = 'hk-options';
+                options.id = 'kuis-options';
+                q.choices.forEach(function (choice, i) {
+                    var opt = document.createElement('div');
+                    opt.className = 'hk-option';
+                    var radio = document.createElement('div');
+                    radio.className = 'hk-radio';
+                    var span = document.createElement('span');
+                    span.textContent = LETTERS[i] + '. ' + choice;
+                    opt.appendChild(radio);
+                    opt.appendChild(span);
+                    opt.addEventListener('click', function () { selectOption(i); });
+                    options.appendChild(opt);
+                });
+                content.appendChild(options);
+            }
+
+            var feedback = document.createElement('div');
+            feedback.id = 'kuis-feedback';
+            content.appendChild(feedback);
+
+            setButton('Jawab', 'answer', true);
+        }
+
+        function selectOption(i) {
+            if (state.mode !== 'answer') return;
+            state.selected = i;
+
+            var opts = document.querySelectorAll('#kuis-options .hk-option');
+            opts.forEach(function (opt, n) {
+                var radio = opt.querySelector('.hk-radio');
+                clear(radio);
+                if (n === i) {
+                    opt.classList.add('active');
+                    var inner = document.createElement('div');
+                    inner.className = 'hk-radio-inner';
+                    radio.appendChild(inner);
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            setButton('Jawab', 'answer', false);
+        }
+
+        function paint(el, ok) {
+            el.style.border = '2px solid ' + (ok ? '#16a34a' : '#dc2626');
+            el.style.background = ok ? '#dcfce7' : '#fee2e2';
+        }
+
+        // ---------- Periksa jawaban ----------
+        async function checkAnswer() {
+            var q = state.questions[state.index];
+            var value;
+
+            if (state.type === 'essay') {
+                value = document.getElementById('kuis-essay').value.trim();
+                if (!value) return;
+            } else {
+                if (state.selected === null) return;
+                value = q.choices[state.selected];
+            }
+
+            setButton('Memeriksa...', 'checking', true);
+
+            try {
+                var r = await post(urlAnswer, { context: 'kuis', index: state.index, choice: value });
+                if (!r.ok) {
+                    showMessage(r.data.message || 'Terjadi kesalahan. Coba mulai kuis lagi.');
+                    setButton('Pilih Jenis Soal', 'chooser', false);
+                    return;
+                }
+
+                var res = r.data;
+                if (res.correct) state.score++;
+
+                if (state.type === 'essay') {
+                    var field = document.getElementById('kuis-essay');
+                    field.disabled = true;
+                    paint(field, res.correct);
+                } else {
+                    var opts = document.querySelectorAll('#kuis-options .hk-option');
+                    opts.forEach(function (opt, n) {
+                        if (q.choices[n] === res.answer) paint(opt, true);
+                        else if (n === state.selected) paint(opt, false);
+                        opt.style.pointerEvents = 'none';
+                    });
+                }
+
+                var fb = document.getElementById('kuis-feedback');
+                clear(fb);
+                var box = document.createElement('div');
+                box.style.cssText = 'margin-top:14px;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5;' +
+                    (res.correct ? 'background:#dcfce7;color:#166534;' : 'background:#fee2e2;color:#991b1b;');
+                var head = document.createElement('strong');
+                head.textContent = res.correct ? 'Benar! 🎉 ' : 'Belum tepat. Jawaban yang benar: ' + res.answer + '. ';
+                var text = document.createElement('span');
+                text.textContent = res.explanation;
+                box.appendChild(head);
+                box.appendChild(text);
+                fb.appendChild(box);
+
+                var last = state.index === state.questions.length - 1;
+                setButton(last ? 'Lihat Hasil ➔' : 'Selanjutnya ➔', last ? 'finish' : 'next', false);
+            } catch (e) {
+                showMessage('Tidak bisa terhubung ke server. Coba lagi ya.');
+                setButton('Pilih Jenis Soal', 'chooser', false);
+            }
+        }
+
+        // ---------- Hasil akhir ----------
+        function showResult() {
+            var total = state.questions.length;
+            var percent = Math.round(state.score / total * 100);
+
+            progressText.textContent = 'Selesai';
+            fill.style.width = '100%';
+            clear(content);
+
+            var card = document.createElement('div');
+            card.className = 'hk-question-card';
+            var label = document.createElement('span');
+            label.className = 'hk-question-label';
+            label.textContent = 'HASIL KUIS';
+            var h = document.createElement('h3');
+            h.textContent = 'Nilaimu: ' + state.score + ' dari ' + total + ' (' + percent + '%)';
+            var p = document.createElement('p');
+            p.textContent = percent >= 80 ? 'Hebat! Pertahankan ya! 🌟'
+                : percent >= 50 ? 'Bagus, terus berlatih supaya makin lancar! 💪'
+                : 'Jangan menyerah, coba lagi dengan soal baru! 📚';
+            card.appendChild(label);
+            card.appendChild(h);
+            card.appendChild(p);
+            content.appendChild(card);
+
+            setButton('Kerjakan Soal Baru', 'chooser', false);
+        }
+
+        button.addEventListener('click', function () {
+            if (state.mode === 'answer') checkAnswer();
+            else if (state.mode === 'next') { state.index++; renderQuestion(); }
+            else if (state.mode === 'finish') showResult();
+            else if (state.mode === 'chooser') showChooser();
+        });
+    })();
+    </script>
 
 </body>
 </html>

@@ -1,9 +1,10 @@
 <?php
-
+use App\Http\Controllers\TanyaAiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\EmailOtpController;
 use App\Http\Controllers\CourseStudyScheduleController;
 use App\Http\Controllers\DayStreakController;
+use App\Http\Controllers\KuisController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -78,3 +79,8 @@ Route::middleware('auth')->prefix('achievements')->group(function () {
         'recordBookRead',
     ])->name('achievements.book-read');
 });
+   Route::get('/tanya-ai', [TanyaAiController::class, 'index']);
+   Route::post('/tanya-ai', [TanyaAiController::class, 'ask']);
+   Route::post('/tanya-ai/chat', [TanyaAiController::class, 'chat']);
+   Route::post('/kuis/mulai', [KuisController::class, 'mulai']);
+   Route::post('/kuis/jawab', [KuisController::class, 'jawab']);
